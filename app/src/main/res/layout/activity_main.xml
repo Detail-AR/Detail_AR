@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:opencv="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity" >
 
-    <org.opencv.android.JavaCameraView
+    <com.example.detailar.PortraitCameraView
+        android:id="@+id/cameraView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/activity_surface_view" />
+        opencv:show_fps="true"
+        opencv:camera_id="back"/>
 
-    
+    <Button
+        android:id="@+id/changeColorButton"
+        android:layout_width="100dp"
+        android:layout_height="85dp"
+        android:layout_gravity="bottom|center"
+        android:text="색깔 변환" />
 
-</LinearLayout>
+    <Button
+        android:id="@+id/changeCameraButton"
+        android:layout_width="100dp"
+        android:layout_height="85dp"
+        android:layout_gravity="right|bottom"
+        android:text= "화면 전환"/>
+
+</FrameLayout>
