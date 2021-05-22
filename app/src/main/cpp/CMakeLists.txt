@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-set(pathPROJECT C:/Users/poiu6/Desktop/DetailAR) # 수정필요
+set(pathPROJECT /Users/poiu694/Desktop/File/Detail_AR) # 수정필요
 set(pathOPENCV ${pathPROJECT}/sdk)
 set(pathLIBOPENCV_JAVA ${pathOPENCV}/native/libs/${ANDROID_ABI}/libopencv_java4.so)
 

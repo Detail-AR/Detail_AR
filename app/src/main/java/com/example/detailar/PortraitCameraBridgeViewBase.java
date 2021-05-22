@@ -95,6 +95,8 @@ public abstract class PortraitCameraBridgeViewBase extends SurfaceView implement
         this.mPreviewFormat = color;
     }
 
+    public abstract void setCameraPermissionGranted();
+
     // CameraViewListener Interface
     public interface CvCameraViewListener {
         /**

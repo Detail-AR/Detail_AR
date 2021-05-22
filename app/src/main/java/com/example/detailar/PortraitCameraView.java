@@ -50,6 +50,11 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
         super(context, attrs);
     }
 
+    @Override
+    public void setCameraPermissionGranted() {
+
+    }
+
     protected boolean initializeCamera(int width, int height) {
         Log.d(TAG, "Initialize java camera");
         boolean result = true;
