@@ -1,9 +1,7 @@
 #include "basic.h"
 #include "function.h"
 
-
-
-void Detection_Main(void){
+void Detection_Main(Mat& input, Mat& output){
     
     Mat img;
     Mat blue_and_morph;
@@ -18,25 +16,10 @@ void Detection_Main(void){
 
     vector<Mat> ball_candidate;
     vector<vector<int>> label_with_color;
-
-    for(int i=0; i<=16 ; i++){  
-        
-        stringstream str;
-        //str << "images/image" << std::setw(2) << setfill('0') << i << ".jpg";
-        str << "KaKao/KakaoTalk_20210507_232928365_" << std::setw(2) << setfill('0') << i << ".jpg";
-        img = imread(str.str());
-        
-        /*
-        if(img.cols>img.rows)
-            resize(img, img, Size(1000,562));
-        else  
-            resize(img, img, Size(562,1000)); */
-
-    
         
     Detect_Billiard(img, blue_and_morph);
     Detect_ball_color(img, ball_colors);  // hsv 영상을 미리 만들어서 매개변수로 보내자. 애초에 hsv 영상으로 imread 해도 될듯.
-    
+
 
     Extract_Biggest_Blob_with_Center(blue_and_morph, Big_blob, Big_blob_center);
 
@@ -54,36 +37,12 @@ void Detection_Main(void){
     int size = corners.size();
     for(int j=0; j< size ;j++)
         circle(img, Point(corners[j].x, corners[j].y), 50, Scalar(0, 255, 0), 2, 8, 0);
-    
-    imshow("img",img);
-    waitKey();
-
-
-
-
-
-
 
 
     // 따로 함수 만들자
     corners.clear();
     ball_candidate.clear();
     label_with_color.clear();
- 
-
-    /*
-    imshow("img",img);
-    imshow("blob", Big_blob);
-    imshow("hole", hole);
-     imshow("red", ball_colors[0]);
-     imshow("yellow", ball_colors[1]);
-    imshow("white", ball_colors[2]);
-   
-    waitKey(0);
-    */
-
-
-    }
 }
 
 void Detect_Billiard(Mat& img, Mat& output){
@@ -835,8 +794,6 @@ void Find_ball_center(vector<Mat>& ball_candidate, vector<vector<int>>& label_wi
 
         cout<<"overlapped!"<<endl;
     }
-        imshow("mat", temp);
-        waitKey();
     
 
 

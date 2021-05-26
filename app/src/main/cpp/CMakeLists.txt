@@ -15,10 +15,7 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
-        ${pathPROJECT}/app/src/main/cpp/native-lib.cpp
-        ${pathPROJECT}/app/src/main/cpp/Detection.cpp
-        ${pathPROJECT}/app/src/main/cpp/basic.h
-        ${pathPROJECT}/app/src/main/cpp/function.h)
+        ${pathPROJECT}/app/src/main/cpp/native-lib.cpp)
 
 
 

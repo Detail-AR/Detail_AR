@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include <opencv2/opencv.hpp>
+#include "Detection.cpp"
 
 using namespace cv;
 
@@ -14,7 +15,5 @@ JNIEXPORT void JNICALL
     // TODO: implement ConvertRGBtoGray()
     Mat &matInput = *(Mat *)mat_addr_input;
     Mat &matResult = *(Mat *)mat_addr_result;
-
-    cvtColor(matInput, matResult, COLOR_RGBA2GRAY);
-
+    Detection_Main(matInput, matResult);
 }
