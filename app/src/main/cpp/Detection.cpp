@@ -9,6 +9,10 @@ void Detection_Main(Mat& input, Mat& output){
     Mat hole;
     Mat Big_blob, Big_blob_without_hole;
 
+    if(img.cols>img.rows)
+        resize(img, img, Size(1000,562));
+    else
+        resize(img, img, Size(562,1000));
 
     Point2i Big_blob_center;
     vector<Point2i> corners;
@@ -43,7 +47,7 @@ void Detection_Main(Mat& input, Mat& output){
     int size = corners.size();
     for(int j=0; j< size ;j++)
         circle(img, Point(corners[j].x, corners[j].y), 50, Scalar(0, 255, 0), 10, 8, 0);
-    output = img;
+
 
 
         
@@ -65,7 +69,7 @@ void Detection_Main(Mat& input, Mat& output){
             putText(img, "White", Point(x,y), 1,1.5, Scalar(0,255,0), 2,8);
         }
     }
-    
+    output = img;
 
     // 따로 함수 만들자
     /*
