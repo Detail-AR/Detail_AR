@@ -22,7 +22,7 @@
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="10dp"
         android:layout_weight="0.1"
         android:text="에지 검출하기" />
 </LinearLayout>
