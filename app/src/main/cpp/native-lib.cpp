@@ -8,7 +8,7 @@ using namespace cv;
 
 extern "C"
 JNIEXPORT void JNICALL
-    Java_com_example_detailar_MainActivity_FindBiliards(JNIEnv *env,
+    Java_com_example_detailar_MainActivity_ConvertRGBtoGray(JNIEnv *env,
                                                                             jobject thiz,
                                                                             jlong mat_addr_input,
                                                                             jlong mat_addr_result) {

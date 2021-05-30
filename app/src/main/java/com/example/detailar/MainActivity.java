@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraBri
     private Mat matResult;
     private PortraitCameraBridgeViewBase mOpenCvCameraView; // 카메라 역할
 
-    public native void FindBiliards(long matAddrInput, long matAddrResult); // native-lib에서 구현
+    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult); // native-lib에서 구현
 
 
     static {
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraBri
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setMPreviewFormat(PortraitCameraBridgeViewBase.RGBA); // RGBA : RGB CAMERA, GRAY : GRAY CAMERA
         mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
-        mOpenCvCameraView.setMaxFrameSize(1440, 1080);
+        mOpenCvCameraView.setMaxFrameSize(400, 400);
 
     }
 
@@ -141,9 +141,9 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraBri
         Size sz = new Size(1000, 562); // Scale up to 800x600
         Imgproc.resize(matInput, resizeImage, sz);
 
-        FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr());
+        ConvertRGBtoGray(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr());
 
-        Size szAfter = new Size(720, 480); // Scale back down to 640x480 (original dim.)
+        Size szAfter = new Size(352, 288); // Scale back down to 640x480 (original dim.)
         Imgproc.resize(resizeImage, matResult, szAfter);
 
         return matResult;
