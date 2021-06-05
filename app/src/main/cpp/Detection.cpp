@@ -1,6 +1,7 @@
 #include "basic.h"
 #include "function.h"
 
+<<<<<<< Updated upstream
 void Detection_Main(Mat& input, Mat& output){
     Mat img = input;
     Mat img_hsv;
@@ -22,6 +23,12 @@ void Detection_Main(Mat& input, Mat& output){
     vector<vector<Vec3i>> label_with_color;  // 공의 후보들의 색index, 그리고 색의 위치(겹친 공이면 어느 색 공이 어디있는지 알기위해)
     vector<Point2i> balls_center;
     vector<int> ball_color_ref;
+=======
+void Detection:Set_Image(Mat& input_img){
+    img = input_img;
+    cvtColor(img, img_hsv, COLOR_BGR2HSV); // 안드로이드 에서는 RGB2HSV
+};
+>>>>>>> Stashed changes
 
 
     cvtColor(img, img_hsv, COLOR_RGB2HSV); // 안드로이드 에서는 RGB2HSV

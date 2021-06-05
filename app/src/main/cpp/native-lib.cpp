@@ -1,7 +1,13 @@
 #include <jni.h>
 
 #include <opencv2/opencv.hpp>
+
+#include "Detail_AR_Main.cpp"
+#include "add_ons.cpp"
+#include "Detect_Ball_Func.cpp"
+#include "Detect_Table_Func.cpp"
 #include "Detection.cpp"
+#include "Geo_Proc.cpp"
 
 using namespace cv;
 
@@ -13,7 +19,7 @@ JNIEXPORT void JNICALL
                                                                             jlong mat_addr_input,
                                                                             jlong mat_addr_result) {
     // TODO: implement ConvertRGBtoGray()
-    Mat &matInput = *(Mat *)mat_addr_input;
-    Mat &matResult = *(Mat *)mat_addr_result;
-    Detection_Main(matInput, matResult);
+    Mat &matInput = *(Mat *) mat_addr_input;
+    Mat &matResult = *(Mat *) mat_addr_result;
+    Detail_AR_Main(matInput, matResult);
 }
