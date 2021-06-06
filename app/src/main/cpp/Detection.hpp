@@ -30,7 +30,7 @@ class Detection
     //Detection(); // 1000x562 픽셀 기준으로 탐지. 생성자 : 
 
 
-    void Set_Image(Mat& input_img);
+    void Set_Image(Mat& input_img, bool flag);
 
     int Detect_Billiard_Corners(vector<Point2i>& corners);
     int Detect_Billirad_Balls(vector<Point2i>& balls_center,  vector<int>& ball_color_ref);

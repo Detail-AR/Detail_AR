@@ -25,7 +25,7 @@ void Detail_AR_Main(Mat& input, Mat& output){
         vector<Point2i> balls_center;  
         vector<int> ball_color_ref;
 
-        detect.Set_Image(img);
+        detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 
 
         int Corners_failed = detect.Detect_Billiard_Corners(corners);
