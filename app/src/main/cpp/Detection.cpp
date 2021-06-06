@@ -4,7 +4,7 @@
 
 void Detection::Set_Image(Mat& input_img){
     img = input_img;
-    cvtColor(img, img_hsv, COLOR_BGR2HSV); // 안드로이드 에서는 RGB2HSV
+    cvtColor(img, img_hsv, COLOR_RGB2HSV); // 안드로이드 에서는 RGB2HSV
 }
 
 int Detection::Detect_Billiard_Corners(vector<Point2i>& corners){
