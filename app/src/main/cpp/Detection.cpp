@@ -27,13 +27,13 @@ int Detection::Detect_Billiard_Corners(vector<Point2i>& corners){
     int corner_size = corners.size();
     if(corner_size <= 0 && corner_size >=5)
         return 0;
-    else
+    else  
         return 1;
 }
 
 
 int Detection::Detect_Billirad_Balls(vector<Point2i>& balls_center,  vector<int>& ball_color_ref){
-
+    
     Detect_ball_color(img_hsv, ball_colors);
     Match_ball_and_color(ball_colors, hole, ball_candidate, label_with_color);
     // R R Y W 조합만 가능한것도 고려해서 거르자
