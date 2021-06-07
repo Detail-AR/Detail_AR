@@ -31,13 +31,18 @@ void Detail_AR_Main(Mat& input, Mat& output){
     int Corners_failed = detect.Detect_Billiard_Corners(corners);
     int Balls_failed = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
 
+        
+        if((int)corners.size() == 4){
+            geo_proc.Cam_and_Balls_3D_Loc(corners, balls_center, ball_color_ref);
+            geo_proc.Draw_Virtual_3D_Obj(img);
+        }
 
-    geo_proc.Cam_and_Balls_3D_Loc(corners, balls_center, ball_color_ref);
-    geo_proc.Draw_Virtual_3D_Obj(img);
+        if(Balls_failed == 1)
+            detect.Draw_Balls(img, balls_center, ball_color_ref);
 
+        if(Corners_failed != 0)
+            detect.Draw_Corners(img, corners);
 
-    //detect.Draw_Balls(img, balls_center, ball_color_ref);
-    //detect.Draw_Corners(img, corners);
 
     output = img; // for android
     detect.Clear_prev_frame_info();
