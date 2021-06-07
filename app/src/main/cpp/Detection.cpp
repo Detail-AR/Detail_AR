@@ -1,12 +1,25 @@
 #include "Detection.hpp"
 #include "Detect_Table_Func.hpp"
 #include "Detect_Ball_Func.hpp"
+<<<<<<< HEAD
 
 void Detection::Set_Image(Mat& input_img){
     img = input_img;
     cvtColor(img, img_hsv, COLOR_RGB2HSV); // 안드로이드 에서는 RGB2HSV
 }
 
+=======
+
+void Detection::Set_Image(Mat& input_img, bool flag){
+    img = input_img;
+
+    if(flag)
+        cvtColor(img, img_hsv, COLOR_BGR2HSV); // 안드로이드 에서는 RGB2HSV
+    else
+        cvtColor(img, img_hsv, COLOR_RGB2HSV); // 안드로이드 에서는 RGB2HSV
+}
+
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 int Detection::Detect_Billiard_Corners(vector<Point2i>& corners){
 
     Detect_Billiard(img_hsv, blue_and_morph);
@@ -18,8 +31,13 @@ int Detection::Detect_Billiard_Corners(vector<Point2i>& corners){
     Detect_Billiard_Edge(Big_blob_without_hole, Big_blob_center, Candidate_lines);
 
     Calculation_Billiard_Corner(Candidate_lines, Big_blob_center, corners);
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     int corner_size = corners.size();
     if(corner_size <= 0 && corner_size >=5)
         return 0;

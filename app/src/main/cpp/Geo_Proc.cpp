@@ -63,6 +63,7 @@ void Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& b
 
    //cout<<world_table_outside_corners;
 
+<<<<<<< HEAD
     // 코너가 시계방향으로 돌면서 reprojection 오차가 이 가장 작은 값을 취한다.
     vector<pair<float, int>> dist_with_index(4);
     vector<Point2f> temp[4];
@@ -79,12 +80,34 @@ void Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& b
 
         temp[i] = img_corners;
     }
+=======
+   // 코너가 시계방향으로 돌면서 reprojection 오차가 이 가장 작은 값을 취한다.
+   vector<pair<float, int>> dist_with_index(4);
+   vector<Point2f> temp[4];
+
+    for(int i=0; i<4 ; i++){
+    Clockwise_Permutation(img_corners);
+    solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
+    projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, reproject_point);
+
+    float dist = float_vector_dist_sum(img_corners, reproject_point);
+
+    dist_with_index[i].first = dist;
+    dist_with_index[i].second = i;
+
+    temp[i] = img_corners;
+   }
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 
 
     sort(dist_with_index.begin(), dist_with_index.end());
 
 
     img_corners = temp[dist_with_index[0].second]; // temp-> reprojection  오차가 가장 작은 코너순서
+<<<<<<< HEAD
+=======
+
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
 }
 
@@ -137,6 +160,7 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
 
 
 
+<<<<<<< HEAD
     // 내가 원하는 점
     /*
     object_wor_pt[0] = Point3f(1,1,0);
@@ -144,6 +168,8 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
     object_wor_pt[2] = Point3f(9,19,0);
     object_wor_pt[3] = Point3f(1,19,0);*/
 
+=======
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
     for(int i=0; i<4; i++){
         line(img, object_img_pt[i%4], object_img_pt[(i+1)%4], Scalar(0,255,255), 2);

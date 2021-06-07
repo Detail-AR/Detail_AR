@@ -94,14 +94,24 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
 		float theta= (*it)[1]; // second element is angle theta
 
         
+<<<<<<< HEAD
         float a = -cos(theta)/sin(theta);
         float b = -1.0;
         float c = rho/sin(theta);
+=======
+        float a = -cos(theta)/(sin(theta)+0.0000000001);
+        float b = -1.0;
+        float c = rho/(sin(theta)+0.0000000001);
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
         
         float p = Big_blob_center.x; // p q 는 big_blob 의 중심이다.
         float q = Big_blob_center.y;
         
+<<<<<<< HEAD
         float foot = -(a*p +b*q + c)/((a*a) + (b*b)); 
+=======
+        float foot = -(a*p +b*q + c)/( ((a*a) + (b*b))  +0.0000000001 ) ; 
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
         float foot_x = foot*a + p;
         float foot_y = foot*b + q;
 
@@ -120,6 +130,7 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
                 
                 double Rad = Vector_Degree(x, c_x, y, c_y);
 
+<<<<<<< HEAD
                 double diff_theta = abs(c_theta - theta) < CV_PI ? abs(c_theta - theta) : CV_PI- abs(c_theta - theta);
                 
 
@@ -130,6 +141,20 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
         
         if(!flag)
             candidate_lines_info.push_back(Vec4f(rho,theta,foot_x, foot_y));
+=======
+                double diff_theta = abs(c_theta - theta) < CV_PI/2 ? abs(c_theta - theta) : CV_PI- abs(c_theta - theta);
+                
+
+                if(diff_theta < 0.17 && Rad < 0.5)  // 비슷한 종류의 직선이다. //****** 파라미터  0.17
+                    flag=true;
+
+            }
+            
+        
+        if(!flag)                          
+            candidate_lines_info.push_back(Vec4f(rho,theta,foot_x, foot_y));
+        
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 
         ++it;
     }
@@ -214,7 +239,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
             if(theta1 > CV_PI){ theta1 -= CV_PI;}
             if(theta2 > CV_PI){ theta2 -= CV_PI;}
+<<<<<<< HEAD
             double diff_theta = abs(theta1 - theta2) < CV_PI ? abs(theta1 - theta2) : CV_PI- abs(theta1 - theta2);
+=======
+            double diff_theta = abs(theta1 - theta2) < CV_PI/2 ? abs(theta1 - theta2) : CV_PI- abs(theta1 - theta2);
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 
 
             double Rad = Vector_Degree(fx_1-B_x, fx_2-B_x, fy_1-B_y, fy_2-B_y);
@@ -242,7 +271,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
     else if(line_num == 4){   // 직선이 4개일떄
 
     vector<vector<Vec3i>> lines_with_point(4);
+<<<<<<< HEAD
     set<pair<int,int>> intersect_point;
+=======
+    vector<Point2i> intersect_points;
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     vector<pair<int,int>> m_pm_e;
 
     int line_num=0;
@@ -270,17 +303,31 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
                 continue;
             }
 
+<<<<<<< HEAD
             intersect_point.insert(make_pair(sol.x, sol.y));
+=======
+
+            int flag = Point_Duplicate_check(sol.x, sol.y, intersect_points);
+
+            if(flag)
+                intersect_points.push_back(Point2i(sol.x, sol.y));
+
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
             lines_with_point[line_num].push_back(Vec3i(sol.x, sol.y,0));
 
             it2++;
             }
 		++it;
         line_num++;
+<<<<<<< HEAD
+=======
+        
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 	}
 
     // 교점이 4개일때, 5개 일떄는 line_with_point 의 갯수가 2개인 점들이 코너점이다.
 
+<<<<<<< HEAD
     int i_p_size = intersect_point.size();
     if(i_p_size==4){
 
@@ -293,6 +340,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
         for(int i=0; i<4 ;i++){
         circle(border, Point(corners[i].x+H_Size, corners[i].y+H_Size), 150, Scalar(0, 255, 0), 2, 8, 0);
         }
+=======
+    int i_p_size = intersect_points.size(); // 교점이 4개이면 모두 코너후보임.
+    if(i_p_size==4){
+        corners = intersect_points;
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     }
     else if(i_p_size == 5){    // 2개의 교점을 가지는 직선을 주목해야한다.
         for(int i=0; i<4 ; i++){

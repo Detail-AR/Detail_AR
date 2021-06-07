@@ -2,11 +2,21 @@
 
 
 double Vector_Degree(double x, double c_x, double y, double c_y){
+<<<<<<< HEAD
     double dot_pro = ( x * c_x ) + ( y * c_y );
     double dDen = ( sqrt( pow( x, 2 ) + pow( y, 2 ) ) * sqrt( pow( c_x, 2 ) + pow( c_y, 2 ) ) );
     double ratio = dot_pro / dDen;
     double Rad;
                 
+=======
+
+    double dot_pro = ( x * c_x ) + ( y * c_y );
+    double dDen = ( sqrt( pow( x, 2 ) + pow( y, 2 ) ) * sqrt( pow( c_x, 2 ) + pow( c_y, 2 ) ) ) +0.0000000001;
+    double ratio = dot_pro / dDen;
+    double Rad;
+
+            
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
         if(ratio >= 1.0)  // nan 문제 발생.
             Rad=  acos( ratio - 0.001 );
         else if(ratio <= -1.0)
@@ -26,11 +36,16 @@ Point2i Get_Intersect_Point(float r1, float t1, float r2, float t2){
     float rho2= r2;  
 	float theta2= t2; 
 
+<<<<<<< HEAD
     double diff_theta = abs(theta1 - theta2) < CV_PI ? abs(theta1 - theta2) : CV_PI- abs(theta1 - theta2);
+=======
+    double diff_theta = abs(theta1 - theta2) < CV_PI/2 ? abs(theta1 - theta2) : CV_PI- abs(theta1 - theta2);
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 
     if(diff_theta < 0.2)
         return Point2i(-1, -1);
 
+<<<<<<< HEAD
     float a1 = -cos(theta1)/sin(theta1);
     float c1 = rho1/sin(theta1);
 
@@ -39,6 +54,16 @@ Point2i Get_Intersect_Point(float r1, float t1, float r2, float t2){
 
 
     float x = (c2-c1)/(a1-a2);
+=======
+    float a1 = -cos(theta1)/(sin(theta1)+0.0000000001);
+    float c1 = rho1/(sin(theta1)+0.0000000001);
+
+    float a2 = -cos(theta2)/(sin(theta2)+0.0000000001);
+    float c2 = rho2/(sin(theta2)+0.0000000001);
+
+
+    float x = (c2-c1)/(a1-a2+0.0000000001);
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     float y = a1*x + c1;
     
     return Point2i(x,y);
@@ -102,6 +127,10 @@ void Sort_Corners_Clockwise(vector<Point2i>& corners){
 float float_vector_dist_sum(vector<Point2f>&a, vector<Point2f>&b){
     int size = a.size();
     float dist_sum = 0;
+<<<<<<< HEAD
+=======
+
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
     for(int i=0; i <size ; i++){
         dist_sum += sqrt((a[i].x - b[i].x)*(a[i].x - b[i].x) + (a[i].y - b[i].y)*(a[i].y - b[i].y));
     }
@@ -115,4 +144,18 @@ void Clockwise_Permutation(vector<Point2f>& pts){
         pts[i]=pts[i-1];
     
     pts[0] = temp;
+<<<<<<< HEAD
+=======
+}
+
+bool Point_Duplicate_check(int x, int y, vector<Point2i>& pts){
+    int size = pts.size();
+    bool flag = true;
+    for(int i=0; i<size ; i++){    
+        int dist = abs(x-pts[i].x) + abs(y-pts[i].y);
+        if(dist < 4)   // 같은 교점이다.
+            flag = false;
+    }
+    return flag;
+>>>>>>> f8462fda59353253e572f8ba133eb66e390ce58b
 }
