@@ -176,7 +176,7 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
 	}
     cout<<endl;
 
-    imshow("result", result);
+    // imshow("result", result);
 
 }
 

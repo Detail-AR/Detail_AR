@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraBri
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setMPreviewFormat(PortraitCameraBridgeViewBase.RGBA); // RGBA : RGB CAMERA, GRAY : GRAY CAMERA
         mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
-        mOpenCvCameraView.setMaxFrameSize(720, 480);
+        mOpenCvCameraView.setMaxFrameSize(1440, 1080);
 
     }
 
