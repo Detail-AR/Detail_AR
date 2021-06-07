@@ -9,6 +9,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Toast;
 
 
 import org.opencv.core.CvType;
@@ -53,6 +54,61 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
     @Override
     public void setCameraPermissionGranted() {
 
+    }
+
+    public void setFocusMode(Context item, int type) {
+
+        Camera.Parameters params = mCamera.getParameters();
+        mCamera.cancelAutoFocus();
+        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean b, Camera camera) {
+            }
+        });
+
+        List<String> FocusModes = params.getSupportedFocusModes();
+
+        switch (type) {
+            case 0:
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                else
+                    Toast.makeText(item, "Auto Mode is not supported", Toast.LENGTH_SHORT).show();
+                break;
+            case 1:
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                else
+                    Toast.makeText(item, "Continuous Mode is not supported", Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_EDOF))
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_EDOF);
+                else
+                    Toast.makeText(item, "EDOF Mode is not supported", Toast.LENGTH_SHORT).show();
+                break;
+            case 3:
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_FIXED))
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
+                else
+                    Toast.makeText(item, "Fixed Mode is not supported", Toast.LENGTH_SHORT).show();
+                break;
+            case 4:
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_INFINITY))
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+                else
+                    Toast.makeText(item, "Infinity Mode is not supported", Toast.LENGTH_SHORT).show();
+                break;
+            case 5:
+                if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_MACRO))
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+                else
+                    Toast.makeText(item, "Macro Mode is not supported", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        mCamera.setParameters(params);
     }
 
     protected boolean initializeCamera(int width, int height) {
@@ -128,7 +184,7 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
             /* Now set camera parameters */
             try {
                 Camera.Parameters params = mCamera.getParameters();
-                Log.d(TAG, "getSupportedPreviewSizes()");
+                Log.d(TAG, "getSupportedPreviewSizes() : ");
                 List<Camera.Size> sizes = params.getSupportedPreviewSizes();
 
                 if (sizes != null) {
@@ -143,11 +199,11 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
                         params.setRecordingHint(true);
 
                     List<String> FocusModes = params.getSupportedFocusModes();
-                    if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+                    if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_FIXED))
                     {
-                        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                        params.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
                     }
-
+                    mCamera.cancelAutoFocus();
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
 
