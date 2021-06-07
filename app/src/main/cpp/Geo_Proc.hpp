@@ -5,7 +5,7 @@
 
 class Geo_Proc
 {
-    private:
+private:
 
     Mat world_table_and_ball;
     vector<Point3f> world_table_outside_corners;
@@ -26,8 +26,8 @@ class Geo_Proc
     int B_H;
 
 
-    public:
-    
+public:
+
     Geo_Proc();
     void Set_Device_Dir(bool dir);
     void Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref);

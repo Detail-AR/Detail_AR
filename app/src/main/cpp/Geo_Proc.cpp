@@ -24,7 +24,7 @@ Geo_Proc::Geo_Proc() : ball_rad(33), table_depth(0), edge_thickness(52), B_W(122
     world_table_outside_corners.resize(4);
 
     // 중심을 기준으로 왼쪽 위부터 저장
-    
+
     world_table_outside_corners[1] = Point3f(B_W+edge_thickness, -edge_thickness, table_depth);
     world_table_outside_corners[2] = Point3f(B_W+edge_thickness, B_H+edge_thickness, table_depth);
     world_table_outside_corners[3] = Point3f(-edge_thickness, B_H+edge_thickness, table_depth);
@@ -36,7 +36,7 @@ Geo_Proc::Geo_Proc() : ball_rad(33), table_depth(0), edge_thickness(52), B_W(122
     world_table_outside_corners[2] = Point3f(1000, 1000, 0);
     world_table_outside_corners[3] = Point3f(0, 1000, 0);*/
 
-    
+
 }
 
 void Geo_Proc::Set_Device_Dir(bool dir){
@@ -46,7 +46,7 @@ void Geo_Proc::Set_Device_Dir(bool dir){
 void Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref){
     if(corners.size() != 4)
         return;
-    
+
     img_corners.resize(4);
     vector<Point2f> reproject_point(4);
 
@@ -61,27 +61,31 @@ void Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& b
     img_corners[3]=Point2f(0,100);
     */
 
-   //cout<<world_table_outside_corners;
+    //cout<<world_table_outside_corners;
 
-   // 코너가 시계방향으로 돌면서 reprojection 오차가 이 가장 작은 값을 취한다.
-   float min=10000000.0;
-   int min_index;
-   vector<Point2f> temp;
+    // 코너가 시계방향으로 돌면서 reprojection 오차가 이 가장 작은 값을 취한다.
+    vector<pair<float, int>> dist_with_index(4);
+    vector<Point2f> temp[4];
+
     for(int i=0; i<4 ; i++){
-    Clockwise_Permutation(img_corners);
-    solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
-    projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, reproject_point);
+        Clockwise_Permutation(img_corners);
+        solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
+        projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, reproject_point);
 
+        float dist = float_vector_dist_sum(img_corners, reproject_point);
 
-    float dist = float_vector_dist_sum(img_corners, reproject_point);
-    if(min > dist){
-        min = dist;
-        temp = img_corners;
+        dist_with_index[i].first = dist;
+        dist_with_index[i].second = i;
+
+        temp[i] = img_corners;
     }
 
-   }
 
-    img_corners = temp; // temp-> reprojection  오차가 가장 작은 코너순서
+    sort(dist_with_index.begin(), dist_with_index.end());
+
+
+    img_corners = temp[dist_with_index[0].second]; // temp-> reprojection  오차가 가장 작은 코너순서
+
     solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
 }
 
@@ -102,7 +106,7 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
     object_wor_pt[3] = Point3f(0,0,0); // center
 
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
-    
+
     line(img, object_img_pt[3], object_img_pt[0], Scalar(255,0,0), 5);
     line(img, object_img_pt[3], object_img_pt[1], Scalar(0,255,0), 5);
     line(img, object_img_pt[3], object_img_pt[2], Scalar(0,0,255), 5);
@@ -126,20 +130,13 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
 
     // 안쪽 테두리 표시
     object_wor_pt.resize(4);
-    
+
     object_wor_pt[0] = Point3f(0,0,30);
     object_wor_pt[1] = Point3f(1224,0,30);
     object_wor_pt[2] = Point3f(1224,2448,30);
     object_wor_pt[3] = Point3f(0,2448,30);
 
 
-
-    // 내가 원하는 점
-    /*
-    object_wor_pt[0] = Point3f(1,1,0);
-    object_wor_pt[1] = Point3f(9,1,0);
-    object_wor_pt[2] = Point3f(9,19,0);
-    object_wor_pt[3] = Point3f(1,19,0);*/
 
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
     for(int i=0; i<4; i++){

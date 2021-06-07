@@ -6,15 +6,15 @@
 class Detection
 {
 
-    private:
+private:
 
     Mat img;
     Mat img_hsv;
     Mat blue_and_morph;
-    Mat ball_colors[3]; 
+    Mat ball_colors[3];
     Mat hole;
     Mat Big_blob, Big_blob_without_hole;
-    
+
 
     Point2i Big_blob_center;
     vector<Point2i> corners;
@@ -26,11 +26,11 @@ class Detection
     vector<int> ball_color_ref;
 
 
-    public:
+public:
     //Detection(); // 1000x562 픽셀 기준으로 탐지. 생성자 : 
 
 
-    void Set_Image(Mat& input_img);
+    void Set_Image(Mat& input_img, bool flag);
 
     int Detect_Billiard_Corners(vector<Point2i>& corners);
     int Detect_Billirad_Balls(vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
@@ -39,7 +39,7 @@ class Detection
     // for test
     void Draw_Corners(Mat& img, vector<Point2i>& corners);
     void Draw_Balls(Mat& img, vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
-        
+
 
 };
 

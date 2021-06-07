@@ -4,45 +4,45 @@
 void Detect_ball_color(Mat& img_hsv, Mat* output_array){
 
 
-	Mat Red_m_1, Red_m_2, Red_mask;
-	Mat Yellow_mask;
+    Mat Red_m_1, Red_m_2, Red_mask;
+    Mat Yellow_mask;
     Mat White_mask;
 
 
-	Scalar lower_red1 = Scalar(160, 130, 50);   // 오히려 분홍쪽에 색이 가까웠음
-	Scalar upper_red1 = Scalar(179, 255, 255);
+    Scalar lower_red1 = Scalar(160, 130, 50);   // 오히려 분홍쪽에 색이 가까웠음
+    Scalar upper_red1 = Scalar(179, 255, 255);
 
     Scalar lower_red2 = Scalar(0, 130, 50);
-	Scalar upper_red2 = Scalar(3, 255, 255);
+    Scalar upper_red2 = Scalar(3, 255, 255);
 
     Scalar lower_yellow = Scalar(3, 130, 50);   // 그림자 부분은 거의 붉은색이다
-	Scalar upper_yellow = Scalar(35, 255, 255);
+    Scalar upper_yellow = Scalar(35, 255, 255);
 
 
     Scalar lower_white = Scalar(0, 0, 100);     // 흰색은 채도가 없는 것? but.. 그렇게하면 안됨..
-	Scalar upper_white = Scalar(179, 50, 255);
+    Scalar upper_white = Scalar(179, 50, 255);
 
 
-	inRange(img_hsv, lower_red1, upper_red1, Red_m_1);
+    inRange(img_hsv, lower_red1, upper_red1, Red_m_1);
     inRange(img_hsv, lower_red2, upper_red2, Red_m_2);
 
     bitwise_or(Red_m_1, Red_m_2, Red_mask);
 
-	inRange(img_hsv, lower_yellow, upper_yellow, Yellow_mask);
-    
-	inRange(img_hsv, lower_white, upper_white, White_mask);
+    inRange(img_hsv, lower_yellow, upper_yellow, Yellow_mask);
+
+    inRange(img_hsv, lower_white, upper_white, White_mask);
 
 
     Mat balls, All_ball;
     bitwise_or(Yellow_mask, Red_mask, balls);
     bitwise_or(balls, White_mask, All_ball);
-    
+
 
     output_array[0] = Red_mask;
     output_array[1] = Yellow_mask;
     output_array[2] = White_mask;
 
-    
+
 }
 
 
@@ -62,11 +62,11 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
     int numOfLables = connectedComponentsWithStats(hole, img_label, stats, centroids, 4, CV_32S);
 
     if(numOfLables == 0 || numOfLables == 1){ cout<<"No balls detected!"; return; }
-    
+
 
 
     vector<pair<int,int>> FBFL; // Find_Best_Four_Label // 공은 반드시 4개이다.
-    for (int j = 1; j < numOfLables; j++) { 
+    for (int j = 1; j < numOfLables; j++) {
         int* label = stats.ptr<int>(j);
 
 
@@ -79,14 +79,14 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
             ratio1 = (float)hei/wid;
         else
             ratio1 = (float)wid/hei;
-        
+
 
         if( ratio1< 0.4)           //******** 파라미터 : 공의 모양을 보고 판단해보자. *************
             continue;              //**** 필요하면 크기도 추가*****
         if(ratio2 < 0.3)
             continue;
-        
-    
+
+
         // ********* 특정 픽셀 비율 이하면 공이라고 판단 안하고 건너 띈다!! **************
         if(area < 100)
             continue;
@@ -108,7 +108,7 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
         total = FBFL_size;
     }
 
-    
+
     // ball 후보들을 따로 분리해준다.
     // i 번쨰 라벨(hole) 은 몇 번째 j 컬러 일까
 
@@ -161,7 +161,7 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
                 Find_one_blob_center( what_color[color_index], one_blob_center);
                 label_with_color[i].push_back(Vec3i(color_index, one_blob_center.x, one_blob_center.y));
                 flag=true;
-            }  
+            }
 
             if(flag){
                 Find_one_blob_center( what_color[best_color_index], one_blob_center);
@@ -189,8 +189,8 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
 
 
 
-void Find_ball_center(vector<Mat>& ball_candidate, vector<vector<Vec3i>>& label_with_color, Mat* ball_colors, 
-vector<Point2i>& balls_center, vector<int>& ball_color_ref){
+void Find_ball_center(vector<Mat>& ball_candidate, vector<vector<Vec3i>>& label_with_color, Mat* ball_colors,
+                      vector<Point2i>& balls_center, vector<int>& ball_color_ref){
 
 
     // 4개의 공의 후보
@@ -209,15 +209,15 @@ vector<Point2i>& balls_center, vector<int>& ball_color_ref){
             vector<Point> contours_poly;
             Point2f centers;
             float radius;
- 
+
 
             approxPolyDP( contours[0], contours_poly, 3, true );
             minEnclosingCircle( contours_poly, centers, radius );
- 
+
 
             balls_center.push_back(Point2i(centers));
             ball_color_ref.push_back(label_with_color[i][0][0]);
-    
+
 
         }
         else  // 공이 겹친 경우 (2개 3개 3개 모두 가능. 너무 겹치면 정확도가 낮아진다.)
@@ -230,10 +230,10 @@ vector<Point2i>& balls_center, vector<int>& ball_color_ref){
 
 
             kmeans(points, overlapped, labels, TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 10, 1.0), 3,
-            KMEANS_PP_CENTERS, centers );
+                   KMEANS_PP_CENTERS, centers );
 
             //각각의 중심이 어느 색 color인지 판단해야 한다.
-        
+
 
             for(int j=0; j<overlapped ; j++){
                 int center_x = centers[j].x;
@@ -256,7 +256,7 @@ vector<Point2i>& balls_center, vector<int>& ball_color_ref){
                 balls_center.push_back(Point2i(centers[j]));
                 ball_color_ref.push_back(min_color_index);
             }
-    
+
         }
 
     }
