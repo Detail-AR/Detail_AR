@@ -26,14 +26,14 @@ import java.util.List;
 
 import static android.Manifest.permission.CAMERA;
 
-public class MainActivity extends AppCompatActivity implements PortraitCameraBridgeViewBase.CvCameraViewListener2 {
+public class MainActivity extends AppCompatActivity implements PortraitCameraView.CvCameraViewListener2 {
 
 
     private final String _TAG = "MainActivity:";
 
     private Mat matInput;
     private Mat matResult;
-    private PortraitCameraBridgeViewBase mOpenCvCameraView; // 카메라 역할
+    private PortraitCameraView mOpenCvCameraView; // 카메라 역할
 
     public native void FindBiliards(long matAddrInput, long matAddrResult); // native-lib에서 구현
 
@@ -76,12 +76,12 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraBri
         setContentView(R.layout.activity_main);
 
         // 카메라 설정
-        mOpenCvCameraView = (PortraitCameraBridgeViewBase)findViewById(R.id.cameraView);
+        mOpenCvCameraView = (PortraitCameraView)findViewById(R.id.cameraView);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setMPreviewFormat(PortraitCameraBridgeViewBase.RGBA); // RGBA : RGB CAMERA, GRAY : GRAY CAMERA
         mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
-        mOpenCvCameraView.setMaxFrameSize(720, 480);
+        mOpenCvCameraView.setMaxFrameSize(1440, 1080);
 
     }
 
