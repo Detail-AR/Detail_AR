@@ -4,7 +4,7 @@
 double Vector_Degree(double x, double c_x, double y, double c_y){
 
     double dot_pro = ( x * c_x ) + ( y * c_y );
-    double dDen = ( sqrt( pow( x, 2 ) + pow( y, 2 ) ) * sqrt( pow( c_x, 2 ) + pow( c_y, 2 ) ) ) +0.0000000001;
+    double dDen = ( sqrt( pow( x, 2 ) + pow( y, 2 ) ) * sqrt( pow( c_x, 2 ) + pow( c_y, 2 ) ) ) +1e-8;
     double ratio = dot_pro / dDen;
     double Rad;
 
@@ -20,7 +20,7 @@ double Vector_Degree(double x, double c_x, double y, double c_y){
 }
 
 
-Point2i Get_Intersect_Point(float r1, float t1, float r2, float t2){
+bool Get_Intersect_Point(float r1, float t1, float r2, float t2, Point2i& pt){
     
     float rho1= r1;  
 	float theta1= t1; 
@@ -31,20 +31,46 @@ Point2i Get_Intersect_Point(float r1, float t1, float r2, float t2){
     double diff_theta = abs(theta1 - theta2) < CV_PI/2 ? abs(theta1 - theta2) : CV_PI- abs(theta1 - theta2);
 
     if(diff_theta < 0.2)
-        return Point2i(-1, -1);
+        return false;
 
-    float a1 = -cos(theta1)/(sin(theta1)+0.0000000001);
-    float c1 = rho1/(sin(theta1)+0.0000000001);
+    float sin1 = sin(theta1);
+    float sin2 = sin(theta2);
+    float a1, c1, a2, c2;
 
-    float a2 = -cos(theta2)/(sin(theta2)+0.0000000001);
-    float c2 = rho2/(sin(theta2)+0.0000000001);
+    if(  sin1 < 0.001 ){
+        a1 = -cos(theta1)/(sin1+0.001);
+        c1 = rho1/(sin1+0.001);
+    }
+    else{
+        a1 = -cos(theta1)/(sin1);
+        c1 = rho1/(sin1);
+    }
 
+    if(  sin2 < 0.001 ){
+        a2 = -cos(theta2)/(sin2+0.001);
+        c2 = rho2/(sin2+0.001);
+    }
+    else{
+        a2 = -cos(theta2)/(sin2);
+        c2 = rho2/(sin2);
+    }
+    
 
-    float x = (c2-c1)/(a1-a2+0.0000000001);
+/*
+   
+    float a1 = -cos(theta1)/(sin(theta1)+1e-8);
+    float c1 = rho1/(sin(theta1)+1e-8);
+
+    float a2 = -cos(theta2)/(sin(theta2)+1e-8);
+    float c2 = rho2/(sin(theta2)+1e-8);
+*/
+    
+    float x = (c2-c1)/(a1-a2);
     float y = a1*x + c1;
     
-    return Point2i(x,y);
 
+    pt =  Point2i(x,y);
+    return true;
 }
 
 bool cmp(const Vec3f &p1, const Vec3f &p2){
@@ -125,7 +151,7 @@ bool Point_Duplicate_check(int x, int y, vector<Point2i>& pts){
     bool flag = true;
     for(int i=0; i<size ; i++){    
         int dist = abs(x-pts[i].x) + abs(y-pts[i].y);
-        if(dist < 4)   // 같은 교점이다.
+        if(dist < 20)   // 20 픽셀 이내이면 같은 교점으로 간주이다.
             flag = false;
     }
     return flag;

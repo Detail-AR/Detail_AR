@@ -93,15 +93,19 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
 		float rho= (*it)[0];   // first element is distance rho
 		float theta= (*it)[1]; // second element is angle theta
 
+        float sine = sin(theta);
+        if(sine < 0.0001 ){
+            sine += 0.0001;
+        }
         
-        float a = -cos(theta)/(sin(theta)+0.0000000001);
+        float a = -cos(theta)/(sine);
         float b = -1.0;
-        float c = rho/(sin(theta)+0.0000000001);
+        float c = rho/(sine);
         
         float p = Big_blob_center.x; // p q 는 big_blob 의 중심이다.
         float q = Big_blob_center.y;
         
-        float foot = -(a*p +b*q + c)/( ((a*a) + (b*b))  +0.0000000001 ) ; 
+        float foot = -(a*p +b*q + c)/( ((a*a) + (b*b))  + 1e-8) ; 
         float foot_x = foot*a + p;
         float foot_y = foot*b + q;
 
@@ -174,9 +178,9 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
 
 		++iter;
 	}
-    cout<<endl;
 
-    // imshow("result", result);
+
+    //imshow("result", result);
 
 }
 
@@ -200,10 +204,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
     if(line_num == 2){
 
-        Point2i sol = Get_Intersect_Point(Candidate_lines[0][0], 
+        Point2i sol;
+        bool flg = Get_Intersect_Point(Candidate_lines[0][0], 
         Candidate_lines[0][1],
         Candidate_lines[1][0],
-        Candidate_lines[1][1]);
+        Candidate_lines[1][1], sol);
         /*
         fx_1 = Candidate_lines[0][2];
         fy_1 = Candidate_lines[0][3];
@@ -217,8 +222,10 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
         double Rad = Vector_Degree(fx_1-B_x, fx_2-B_x, fy_1-B_y, fy_2-B_y); */
 
-        if(!(sol.x==-1 && sol.y==-1) )  // 2.6은 150도
+        if(flg)  // 2.6은 150도
             corners.push_back(sol);
+
+        cout<<"one";
     }
     else if(line_num == 3){    // 불안한 방법이다.  예각일때 실패.**
         set<pair<int,int>> s;
@@ -238,10 +245,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
                 continue;
             }
 
-            Point2i sol = Get_Intersect_Point(rho1,theta1,rho2,theta2);
+            Point2i sol;
+            float flg = Get_Intersect_Point(rho1,theta1,rho2,theta2, sol);
 
 
-            if( (sol.x == -1 && sol.y == -1 ) ){  // 각도차이가 너무작거나 동일한 직선이면 교점을 구하지 않는다.
+            if( !flg ){  // 각도차이가 너무작거나 동일한 직선이면 교점을 구하지 않는다.
                 it2++;
                 continue;
             }
@@ -279,15 +287,16 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
         corners.push_back(Point2i((*it).first,(*it).second));
         it++;
         corners.push_back(Point2i((*it).first,(*it).second));
-
+    cout<<"two";
     }
     else if(line_num == 4){   // 직선이 4개일떄
+    cout<<":";
 
     vector<vector<Vec3i>> lines_with_point(4);
     vector<Point2i> intersect_points;
     vector<pair<int,int>> m_pm_e;
 
-    int line_num=0;
+    int l_n=0;
     while (it != Candidate_lines.end()) {
 
 		float rho1= (*it)[0];  
@@ -304,10 +313,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
 		    float rho2= (*it2)[0];  
 		    float theta2= (*it2)[1]; 
-            Point2i sol = Get_Intersect_Point(rho1,theta1,rho2,theta2);
+            Point2i sol;
+            bool flg = Get_Intersect_Point(rho1,theta1,rho2,theta2, sol);
             
                         
-            if( (sol.x == -1 && sol.y == -1 ) ){  // 각도차이가 너무작거나 동일한 직선이면 교점을 구하지 않는다.
+            if( !flg ){  // 각도차이가 너무작거나 동일한 직선이면 교점을 구하지 않는다.
                 it2++;
                 continue;
             }
@@ -318,12 +328,12 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
             if(flag)
                 intersect_points.push_back(Point2i(sol.x, sol.y));
 
-            lines_with_point[line_num].push_back(Vec3i(sol.x, sol.y,0));
+            lines_with_point[l_n].push_back(Vec3i(sol.x, sol.y,0));
 
             it2++;
             }
 		++it;
-        line_num++;
+        l_n++;
         
 	}
 
@@ -332,16 +342,22 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
     int i_p_size = intersect_points.size(); // 교점이 4개이면 모두 코너후보임.
     if(i_p_size==4){
         corners = intersect_points;
+        cout<<"[4]";
     }
     else if(i_p_size == 5){    // 2개의 교점을 가지는 직선을 주목해야한다.
+    int n=0;
         for(int i=0; i<4 ; i++){
             if(lines_with_point[i].size() == 2 ){
                 for(int j=0; j<2 ; j++)
                     corners.push_back(Point2i(lines_with_point[i][j][0], lines_with_point[i][j][1]));
+                n++;
             }
         }
+         cout<<"[5]"<<"("<<n<<")";
     }
     else if(i_p_size==6){
+         cout<<"[6]";
+        cout<<intersect_points<<endl;
         for(int i=0; i<4 ;i++){
             for(int j=0; j<3 ; j++){  // 직선당 3개의 교점
                 int X = lines_with_point[i][j][0]; 
@@ -427,8 +443,10 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
 
     }
-    else
+    else{
+        corners.clear();
         return; // there are no lines
+    }
 
     /*
     int size = corners.size();

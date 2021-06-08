@@ -32,13 +32,13 @@ class Detection
 
     void Set_Image(Mat& input_img, bool flag);
 
-    int Detect_Billiard_Corners(vector<Point2i>& corners);
-    int Detect_Billirad_Balls(vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
+    int Detect_Billiard_Corners(vector<Point2i>& input_corners);
+    int Detect_Billirad_Balls(vector<Point2i>& input_balls_center,  vector<int>& input_ball_color_ref);
     void Clear_prev_frame_info();
 
     // for test
-    void Draw_Corners(Mat& img, vector<Point2i>& corners);
-    void Draw_Balls(Mat& img, vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
+    void Draw_Corners(Mat& img, vector<Point2i>& input_corners);
+    void Draw_Balls(Mat& img, vector<Point2i>& input_balls_center,  vector<int>& input_ball_color_ref);
         
 
 };
