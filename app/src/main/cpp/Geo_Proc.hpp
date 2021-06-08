@@ -30,10 +30,13 @@ class Geo_Proc
     
     Geo_Proc();
     void Set_Device_Dir(bool dir);
-    void Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
+    bool Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
 
     // for test
     void Draw_Virtual_3D_Obj(Mat& img);
+
+    //clear
+    void Clear_prev_frame_info();
 
 };
 

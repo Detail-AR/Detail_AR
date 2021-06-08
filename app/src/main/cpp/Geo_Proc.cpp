@@ -43,9 +43,9 @@ void Geo_Proc::Set_Device_Dir(bool dir){
     device_dir = dir;
 }
 
-void Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref){
+bool Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref){
     if(corners.size() != 4)
-        return;
+        return false;
     
     img_corners.resize(4);
     vector<Point2f> reproject_point(4);
@@ -83,10 +83,18 @@ void Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& b
 
     sort(dist_with_index.begin(), dist_with_index.end());
 
+    for(int i=0; i<4 ;i++){
+       // cout<<"<"<<dist_with_index[i].first<<","<<dist_with_index[i].second<<">"<<endl;
+    }
+
+    if(dist_with_index[0].first>400)   // 4개의 코너가 잘못되었을 가능성이 높다.
+        return false;
+
 
     img_corners = temp[dist_with_index[0].second]; // temp-> reprojection  오차가 가장 작은 코너순서
 
     solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
+    return true;
 }
 
 void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
@@ -130,11 +138,13 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
 
     // 안쪽 테두리 표시
     object_wor_pt.resize(4);
+
+    int depth = 20;
     
-    object_wor_pt[0] = Point3f(0,0,30);
-    object_wor_pt[1] = Point3f(1224,0,30);
-    object_wor_pt[2] = Point3f(1224,2448,30);
-    object_wor_pt[3] = Point3f(0,2448,30);
+    object_wor_pt[0] = Point3f(0,0,40);
+    object_wor_pt[1] = Point3f(1224,0,40);
+    object_wor_pt[2] = Point3f(1224,2448,40);
+    object_wor_pt[3] = Point3f(0,2448,40);
 
 
 
@@ -145,10 +155,10 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
     }
 
 
-    object_wor_pt[0] = Point3f(300,300,30);
-    object_wor_pt[1] = Point3f(924,300,30);
-    object_wor_pt[2] = Point3f(924,2148,30);
-    object_wor_pt[3] = Point3f(300,2148,30);
+    object_wor_pt[0] = Point3f(300,300,40);
+    object_wor_pt[1] = Point3f(924,300,40);
+    object_wor_pt[2] = Point3f(924,2148,40);
+    object_wor_pt[3] = Point3f(300,2148,40);
 
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
     for(int i=0; i<4; i++){
@@ -157,4 +167,8 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
     }
 
 
+}
+
+void Geo_Proc::Clear_prev_frame_info(){
+    img_corners.clear();
 }

@@ -6,7 +6,7 @@
 //Detection
 void Find_one_blob_center(Mat& one_blob, Point2i& one_blob_center);
 double Vector_Degree(double x, double c_x, double y, double c_y);
-Point2i Get_Intersect_Point(float r1, float t1, float r2, float t2);
+bool Get_Intersect_Point(float r1, float t1, float r2, float t2, Point2i& pt);
 bool cmp(const Vec3f &p1, const Vec3f &p2);
 bool cmp2(const pair<int, int>& a, const pair<int,int>& b);
 bool Point_Duplicate_check(int x, int y, vector<Point2i>& pts);
