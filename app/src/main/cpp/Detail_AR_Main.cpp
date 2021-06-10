@@ -7,7 +7,7 @@ void Detail_AR_Main(Mat& input, Mat& output){
 
     Mat img = input; // for android
     Detection detect;
-    Geo_Proc geo_proc;
+    Geo_Proc geo_proc(700);
 
 
     if(img.cols>img.rows){
@@ -31,23 +31,29 @@ void Detail_AR_Main(Mat& input, Mat& output){
     int Corners_failed = detect.Detect_Billiard_Corners(corners);
     int Balls_failed = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
 
-        
         bool can_find_pose;
         if((int)corners.size() == 4){  
-            can_find_pose = geo_proc.Cam_and_Balls_3D_Loc(corners, balls_center, ball_color_ref);
+            can_find_pose = geo_proc.Cam_and_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen);
+            
+            // here, we need solution class    input: wor_ball_cen,  output: solution arrow.
+
+            geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
 
             if(can_find_pose)
-                geo_proc.Draw_Virtual_3D_Obj(img);
+                geo_proc.Draw_3D_Templete_on_Img(img);
         }
 
         if(Balls_failed == 1)
             detect.Draw_Balls(img, balls_center, ball_color_ref);
 
-        if(Corners_failed != 0)
+        if(Corners_failed != 0){
             detect.Draw_Corners(img, corners);
+        }
+
 
 
     output = img; // for android
     detect.Clear_prev_frame_info();
+    geo_proc.Clear_prev_frame_info();
 
 }

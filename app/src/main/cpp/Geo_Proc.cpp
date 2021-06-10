@@ -2,11 +2,10 @@
 #include "add_ons.h"
 #include "basic.h"
 
-Geo_Proc::Geo_Proc() : ball_rad(33), table_depth(0), edge_thickness(52), B_W(1224), B_H(2448) {   // 입력 영상의 픽셀을 고려해야함.
+Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(-30), edge_thickness(52), B_W(1224), B_H(2448) {   // 입력 영상의 픽셀을 고려해야함.
     double * intrinsic_para;
 
-    //double f = 1543;
-    double f = 700;
+    double f = f_len;
     double cx = 500;
     double cy = 250;
 
@@ -17,62 +16,49 @@ Geo_Proc::Geo_Proc() : ball_rad(33), table_depth(0), edge_thickness(52), B_W(122
 
     INTRINSIC = Mat(3,3, CV_64FC1, intrinsic_para);
 
-    distCoeffs = Mat_<double>(4, 1) << 0.040982,  -0.026665,  -0.007009,  0.000758 ;
+    distCoeffs = Mat();
+    //Mat_<double>(4, 1) << 0.040982,  -0.026665,  -0.007009,  0.000758 ;
 
 
-    world_table_and_ball.create(B_H,B_W, CV_8UC3);
     world_table_outside_corners.resize(4);
 
     // 중심을 기준으로 왼쪽 위부터 저장
     
-    world_table_outside_corners[1] = Point3f(B_W+edge_thickness, -edge_thickness, table_depth);
-    world_table_outside_corners[2] = Point3f(B_W+edge_thickness, B_H+edge_thickness, table_depth);
-    world_table_outside_corners[3] = Point3f(-edge_thickness, B_H+edge_thickness, table_depth);
-    world_table_outside_corners[0] = Point3f(-edge_thickness, -edge_thickness, table_depth);
+    world_table_outside_corners[1] = Point3d(B_W+edge_thickness, -edge_thickness, table_depth);
+    world_table_outside_corners[2] = Point3d(B_W+edge_thickness, B_H+edge_thickness, table_depth);
+    world_table_outside_corners[3] = Point3d(-edge_thickness, B_H+edge_thickness, table_depth);
+    world_table_outside_corners[0] = Point3d(-edge_thickness, -edge_thickness, table_depth);
 
-    /*
-    world_table_outside_corners[0] = Point3f(0, 0, 0);
-    world_table_outside_corners[1] = Point3f(1000, 0, 0);
-    world_table_outside_corners[2] = Point3f(1000, 1000, 0);
-    world_table_outside_corners[3] = Point3f(0, 1000, 0);*/
-
-    
 }
 
 void Geo_Proc::Set_Device_Dir(bool dir){
     device_dir = dir;
 }
 
-bool Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref){
-    if(corners.size() != 4)
+bool Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& input_corners, vector<Point2i>& balls_center, vector<int>& ball_color_ref,
+vector<Point2i>& wor_ball_cen)
+{
+    if(input_corners.size() != 4)   // 코너가 4개일 경우에만 처리.
         return false;
     
     img_corners.resize(4);
-    vector<Point2f> reproject_point(4);
+    vector<Point2d> reproject_point(4);
 
-    Sort_Corners_Clockwise(corners);
+    Sort_Corners_Clockwise(input_corners);
     for(int i=0; i<4 ;i++)
-        img_corners[i] = corners[i];
+        img_corners[i] =input_corners[i];
 
-    /*
-    img_corners[0]=Point2f(200,0);
-    img_corners[1]=Point2f(400,100);
-    img_corners[2]=Point2f(200,200);
-    img_corners[3]=Point2f(0,100);
-    */
-
-   //cout<<world_table_outside_corners;
 
    // 코너가 시계방향으로 돌면서 reprojection 오차가 이 가장 작은 값을 취한다.
-   vector<pair<float, int>> dist_with_index(4);
-   vector<Point2f> temp[4];
+   vector<pair<double, int>> dist_with_index(4);
+   vector<Point2d> temp[4];
 
     for(int i=0; i<4 ; i++){
     Clockwise_Permutation(img_corners);
     solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
     projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, reproject_point);
 
-    float dist = float_vector_dist_sum(img_corners, reproject_point);
+    double dist = double_vector_dist_sum(img_corners, reproject_point);
 
     dist_with_index[i].first = dist;
     dist_with_index[i].second = i;
@@ -92,26 +78,93 @@ bool Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& b
 
 
     img_corners = temp[dist_with_index[0].second]; // temp-> reprojection  오차가 가장 작은 코너순서
-
     solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
+
+    // 각 공의 3D world 좌표계 기준 위치 계산.
+    Mat R;
+    Rodrigues(rvec, R);
+    Mat R_inv = R.inv();
+    int b_n = balls_center.size();
+    vector<Vec3d> b_c_vec(b_n);
+
+    for(int i=0; i<b_n ; i++){  // 이미지 위의 점을 homogenous vector 로 변환
+        b_c_vec[i] = Vec3d((double)balls_center[i].x, (double)balls_center[i].y, 1.0);
+    }
+
+    Mat IN_PTS((int)b_c_vec.size(), 3, CV_64F, b_c_vec.data());
+    
+    Mat A =  R_inv*INTRINSIC.inv()*IN_PTS.t();
+    Mat TVEC;
+    repeat(tvec, 1, b_n, TVEC);
+    Mat B = R_inv*TVEC; 
+
+
+    int hei = ball_rad;
+    vector<Point2i> wor_ball(b_n);
+    for(int i=0; i<b_n ; i++){
+        double s =  (hei + B.at<double>(2,i)) /( A.at<double>(2,i) + 1e-8);
+
+        int x = (int)( s * A.at<double>(0,i) - B.at<double>(0,i));
+        int y = (int)( s * A.at<double>(1,i) - B.at<double>(1,i));
+        wor_ball[i] = Point2i(x,y);
+    }
+
+
+
+    wor_ball_cen = wor_ball;  // put the output
+
+    wor_ball_loc.resize(b_n);
+    for(int i=0; i<b_n ; i++){
+        wor_ball_loc[i] = Vec3i(wor_ball[i].x, wor_ball[i].y, hei);
+    }
+    
+    world_ball_color_ref = ball_color_ref;
+    
     return true;
 }
 
-void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
+void Geo_Proc::Draw_Obj_on_Templete(){
+    Ball_and_Sol_templete = Mat(B_H,B_W, CV_8UC3, Scalar(255,0,0));   // for drawing
+
+    int b_n = wor_ball_loc.size();
+
+
+    
+    for(int i=0; i<b_n ; i++){
+        Scalar color;
+        if(world_ball_color_ref[i] == 0)
+            color = Scalar(0,0,255);
+        else if(world_ball_color_ref[i] == 1 )
+            color = Scalar(0, 255, 255);
+        else
+            color = Scalar(255,255,255);
+
+        circle(Ball_and_Sol_templete, Point(wor_ball_loc[i].x, wor_ball_loc[i].y), ball_rad-25, color, 55, 8, 0);
+    }
+
+    //resize(Ball_and_Sol_templete, Ball_and_Sol_templete,Size(500, 1000));
+    //imshow("result", Ball_and_Sol_templete);
+
+}
+
+
+
+
+void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
     if(img_corners.size() != 4)
         return;
 
 
-    vector<Point3f> object_wor_pt;
-    vector<Point2f> object_img_pt;
+    vector<Point3d> object_wor_pt;
+    vector<Point2d> object_img_pt;
 
     // 3축 그리기
     object_wor_pt.resize(4);
-    object_wor_pt[0] = Point3f(200,0,0);
-    object_wor_pt[1] = Point3f(0,200,0);
-    object_wor_pt[2] = Point3f(0,0,200);
-    object_wor_pt[3] = Point3f(0,0,0); // center
+    object_wor_pt[0] = Point3d(200,0,0);
+    object_wor_pt[1] = Point3d(0,200,0);
+    object_wor_pt[2] = Point3d(0,0,200);
+    object_wor_pt[3] = Point3d(0,0,0); // center
 
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
     
@@ -141,10 +194,10 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
 
     int depth = 20;
     
-    object_wor_pt[0] = Point3f(0,0,40);
-    object_wor_pt[1] = Point3f(1224,0,40);
-    object_wor_pt[2] = Point3f(1224,2448,40);
-    object_wor_pt[3] = Point3f(0,2448,40);
+    object_wor_pt[0] = Point3d(0,0,0);
+    object_wor_pt[1] = Point3d(1224,0,0);
+    object_wor_pt[2] = Point3d(1224,2448,0);
+    object_wor_pt[3] = Point3d(0,2448,0);
 
 
 
@@ -155,10 +208,10 @@ void Geo_Proc::Draw_Virtual_3D_Obj(Mat& img){
     }
 
 
-    object_wor_pt[0] = Point3f(300,300,40);
-    object_wor_pt[1] = Point3f(924,300,40);
-    object_wor_pt[2] = Point3f(924,2148,40);
-    object_wor_pt[3] = Point3f(300,2148,40);
+    object_wor_pt[0] = Point3d(300,300,0);
+    object_wor_pt[1] = Point3d(924,300,0);
+    object_wor_pt[2] = Point3d(924,2148,0);
+    object_wor_pt[3] = Point3d(300,2148,0);
 
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
     for(int i=0; i<4; i++){

@@ -6,11 +6,12 @@
 class Geo_Proc
 {
     private:
-
-    Mat world_table_and_ball;
-    vector<Point3f> world_table_outside_corners;
-    vector<Point2f> img_corners; // == corners
-    vector<Point3i> world_ball_loc;
+    
+    Mat Ball_and_Sol_templete;
+    vector<Point3d> world_table_outside_corners;
+    vector<Point2d> img_corners; // == corners
+    vector<Point3i> wor_ball_loc;
+    vector<int> world_ball_color_ref;
 
     Mat INTRINSIC;
     Mat distCoeffs;
@@ -28,12 +29,14 @@ class Geo_Proc
 
     public:
     
-    Geo_Proc();
+    Geo_Proc(int f_len);
     void Set_Device_Dir(bool dir);
-    bool Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center,  vector<int>& ball_color_ref);
+    bool Cam_and_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center, vector<int>& ball_color_ref,
+    vector<Point2i>& wor_ball_cen);
 
     // for test
-    void Draw_Virtual_3D_Obj(Mat& img);
+    void Draw_Obj_on_Templete();
+    void Draw_3D_Templete_on_Img(Mat& img);
 
     //clear
     void Clear_prev_frame_info();

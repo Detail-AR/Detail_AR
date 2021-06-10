@@ -127,18 +127,18 @@ void Sort_Corners_Clockwise(vector<Point2i>& corners){
     }
 }
 
-float float_vector_dist_sum(vector<Point2f>&a, vector<Point2f>&b){
+double double_vector_dist_sum(vector<Point2d>&a, vector<Point2d>&b){
     int size = a.size();
-    float dist_sum = 0;
+    double dist_sum = 0;
 
     for(int i=0; i <size ; i++){
         dist_sum += sqrt((a[i].x - b[i].x)*(a[i].x - b[i].x) + (a[i].y - b[i].y)*(a[i].y - b[i].y));
     }
     return dist_sum;
 }
-void Clockwise_Permutation(vector<Point2f>& pts){
+void Clockwise_Permutation(vector<Point2d>& pts){
     int size = pts.size();
-    Point2f temp = pts[size-1];
+    Point2d temp = pts[size-1];
 
     for(int i=size-1; i>0 ; i--)
         pts[i]=pts[i-1];
