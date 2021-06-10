@@ -24,6 +24,7 @@ void Detail_AR_Main(Mat& input, Mat& output){
     vector<Point2i> corners;
     vector<Point2i> balls_center;
     vector<int> ball_color_ref;
+    vector<Point2i> wor_ball_cen;
 
     detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 

@@ -203,7 +203,6 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
                     {
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
                     }
-                    mCamera.cancelAutoFocus();
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
 
