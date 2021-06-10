@@ -15,8 +15,8 @@ bool Point_Duplicate_check(int x, int y, vector<Point2i>& pts);
 //Geo_proc
 void Sort_Corners_Clockwise(vector<Point2i>& corners);
 int Get_Area(Point2i X, Point2i Y, Point2i Z);
-float float_vector_dist_sum(vector<Point2f>&a, vector<Point2f>&b);
-void Clockwise_Permutation(vector<Point2f>& pts);
+double double_vector_dist_sum(vector<Point2d>&a, vector<Point2d>&b);
+void Clockwise_Permutation(vector<Point2d>& pts);
 
 
 #endif
