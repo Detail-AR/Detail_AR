@@ -19,6 +19,7 @@ void Detail_AR_Main(Mat& input, Mat& output){
         geo_proc.Set_Device_Dir(false); // 세로방향
     }
 
+    detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 
 
     vector<Point2i> corners;
@@ -26,13 +27,12 @@ void Detail_AR_Main(Mat& input, Mat& output){
     vector<int> ball_color_ref;
     vector<Point2i> wor_ball_cen;
 
-    detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 
 
     int Corners_failed = detect.Detect_Billiard_Corners(corners);
     int Balls_failed = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
 
-        bool can_find_pose;
+    bool can_find_pose;
         if((int)corners.size() == 4){  
             can_find_pose = geo_proc.Cam_and_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen);
             
@@ -56,5 +56,6 @@ void Detail_AR_Main(Mat& input, Mat& output){
     output = img; // for android
     detect.Clear_prev_frame_info();
     geo_proc.Clear_prev_frame_info();
+    corners.clear();
 
 }
