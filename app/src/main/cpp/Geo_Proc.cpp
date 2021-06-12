@@ -1,6 +1,7 @@
 #include "Geo_Proc.hpp"
 #include "add_ons.h"
 #include "basic.h"
+#include <android/log.h>
 
 Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(40), edge_thickness(52), B_W(1500), B_H(2730) {   // 입력 영상의 픽셀을 고려해야함.
     double * intrinsic_para;
@@ -70,6 +71,11 @@ vector<Point2i>& wor_ball_cen)
     sort(dist_with_index.begin(), dist_with_index.end());
 
     for(int i=0; i<4 ;i++){
+        __android_log_print(
+                ANDROID_LOG_INFO,
+                "Cam and Balls 3d Loc",
+                " Dist index %d %d\n",
+                dist_with_index[i].first, dist_with_index[i].second);
        // cout<<"<"<<dist_with_index[i].first<<","<<dist_with_index[i].second<<">"<<endl;
     }
 
