@@ -199,7 +199,6 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
     int line_num = Candidate_lines.size();
     vector<cv::Vec4f>::const_iterator it = Candidate_lines.begin();
-    vector<Vec3f> candidate_corners;
 
 
     if(line_num == 2){
@@ -225,10 +224,13 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
         if(flg)  // 2.6은 150도
             corners.push_back(sol);
 
-        cout<<"one";
+        //cout<<"one";
     }
     else if(line_num == 3){    // 불안한 방법이다.  예각일때 실패.**
         set<pair<int,int>> s;
+        vector<Vec3f> candidate_corners;
+        vector<Point2i> corners_set;
+
     
         while (it != Candidate_lines.end()) {
 
@@ -259,13 +261,14 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
             fx_2 = (*it2)[2];
             fy_2 = (*it2)[3];
 
+            /*
             circle(border, Point(fx_1+H_Size, fy_1+H_Size), 5, Scalar(0, 0, 255), 1, 8, 0);
             circle(border, Point(fx_2+H_Size, fy_2+H_Size), 5, Scalar(0, 0, 255), 1, 8, 0);
 
             if(theta1 > CV_PI){ theta1 -= CV_PI;}
             if(theta2 > CV_PI){ theta2 -= CV_PI;}
             double diff_theta = abs(theta1 - theta2) < CV_PI/2 ? abs(theta1 - theta2) : CV_PI- abs(theta1 - theta2);
-
+            */
 
             double Rad = Vector_Degree(fx_1-B_x, fx_2-B_x, fy_1-B_y, fy_2-B_y);
             candidate_corners.push_back(Vec3f(sol.x, sol.y, Rad));
@@ -276,21 +279,21 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
 
         sort(candidate_corners.begin(), candidate_corners.end(), cmp);
         
-        s.insert(make_pair(candidate_corners[0][0], candidate_corners[0][1]));
+        int x = candidate_corners[0][0];
+        int y = candidate_corners[0][1];
+
+        if( Point_Duplicate_check(x,y, corners_set) )
+            corners_set.push_back(Point2i(x,y)); 
 
         candidate_corners.clear();
-
 		 ++it;
 	    }
+        corners = corners_set;
 
-        set<pair<int,int>>::iterator it = s.begin();
-        corners.push_back(Point2i((*it).first,(*it).second));
-        it++;
-        corners.push_back(Point2i((*it).first,(*it).second));
-    cout<<"two";
+    //cout<<"two";
     }
     else if(line_num == 4){   // 직선이 4개일떄
-    cout<<":";
+    //cout<<":";
 
     vector<vector<Vec3i>> lines_with_point(4);
     vector<Point2i> intersect_points;
@@ -342,7 +345,7 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
     int i_p_size = intersect_points.size(); // 교점이 4개이면 모두 코너후보임.
     if(i_p_size==4){
         corners = intersect_points;
-        cout<<"[4]";
+        //cout<<"[4]";
     }
     else if(i_p_size == 5){    // 2개의 교점을 가지는 직선을 주목해야한다.
     int n=0;
@@ -353,11 +356,11 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
                 n++;
             }
         }
-         cout<<"[5]"<<"("<<n<<")";
+         //cout<<"[5]"<<"("<<n<<")";
     }
     else if(i_p_size==6){
-         cout<<"[6]";
-        cout<<intersect_points<<endl;
+         //cout<<"[6]";
+        //cout<<intersect_points<<endl;
         for(int i=0; i<4 ;i++){
             for(int j=0; j<3 ; j++){  // 직선당 3개의 교점
                 int X = lines_with_point[i][j][0]; 
