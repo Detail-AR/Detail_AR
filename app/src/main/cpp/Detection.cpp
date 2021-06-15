@@ -26,10 +26,10 @@ int Detection::Detect_Billiard_Corners(vector<Point2i>& input_corners){
     input_corners = corners;
 
     int corner_size = corners.size();
-    if(corner_size <= 0 || corner_size >=5)
-        return 0;
+    if(corner_size < 0 || corner_size >=5)
+        return -1;
     else  
-        return 1;
+        return corner_size;
 }
 
 
@@ -41,15 +41,24 @@ int Detection::Detect_Billirad_Balls(vector<Point2i>& input_balls_center,  vecto
 
     Find_ball_center(ball_candidate, label_with_color, ball_colors,balls_center, ball_color_ref);
 
+    int c_t[3]={0,};
+    int s = ball_color_ref.size();
+    
+    if(s>4) // number of balls must be four.
+        ball_color_ref.resize(4);
+    
+    for(int i=0; i<s ; i++)
+        c_t[ball_color_ref[i]]++;
+     
+    if(!(c_t[0]<=2 && c_t[1] <=1 && c_t[2] <=1)) // Red Red Yellow White.
+        return -1;
 
     input_balls_center = balls_center;
     input_ball_color_ref = ball_color_ref;
 
     int ball_num = balls_center.size();
-    if(ball_num <= 0)
-        return 0;
-    else
-        return 1;
+
+    return ball_num;
 }
 
 

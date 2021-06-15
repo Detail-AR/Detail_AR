@@ -35,53 +35,28 @@ void Geo_Proc::Set_Device_Dir(bool dir){
     device_dir = dir;
 }
 
-bool Geo_Proc::Cam_and_Balls_3D_Loc(vector<Point2i>& input_corners, vector<Point2i>& balls_center, vector<int>& ball_color_ref,
-vector<Point2i>& wor_ball_cen)
+
+int Geo_Proc::Find_Balls_3D_Loc(vector<Point2i>& input_corners, vector<Point2i>& balls_center, vector<int>& ball_color_ref,
+vector<Point2i>& wor_ball_cen, bool update)
 {
     if(input_corners.size() != 4)   // 코너가 4개일 경우에만 처리.
-        return false;
+        return -1;
     
-    img_corners.resize(4);
-    vector<Point2d> reproject_point(4);
+    Mat in_rvec, in_tvec;
+    vector<Point2d> output_corners(4);
+    
+    bool pose_flag = Cam_Pos_with_Four_Corners(input_corners, output_corners, in_rvec, in_tvec, false);
 
-    Sort_Corners_Clockwise(input_corners);
-    for(int i=0; i<4 ;i++)
-        img_corners[i] =input_corners[3-i];   // ** 반시계 방향으로 넣어야 z축이 천장을 향한다
-
-
-   // 코너가 시계방향으로 돌면서 reprojection 오차가 이 가장 작은 값을 취한다.
-   vector<pair<double, int>> dist_with_index(4);
-   vector<Point2d> temp[4];
-
-    for(int i=0; i<4 ; i++){
-    Clockwise_Permutation(img_corners);
-    solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
-    projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, reproject_point);
-
-    double dist = double_vector_dist_sum(img_corners, reproject_point);
-
-    dist_with_index[i].first = dist;
-    dist_with_index[i].second = i;
-
-    temp[i] = img_corners;
-   }
-
-
-    sort(dist_with_index.begin(), dist_with_index.end());
-
-    for(int i=0; i<4 ;i++){
-       // cout<<"<"<<dist_with_index[i].first<<","<<dist_with_index[i].second<<">"<<endl;
+    if(pose_flag){   // 카메라 pose를 구할수 있다면  포즈 정보 업데이트.
+        img_corners = output_corners;
+        rvec = in_rvec;
+        tvec = in_tvec;
     }
+    else
+        return -1; // 카메라 pose를 알 수 없으므로 공 위치파악 불가.
 
-    if(dist_with_index[0].first>400)   // 4개의 코너가 잘못되었을 가능성이 높다.
-        return false;
 
-
-    img_corners = temp[dist_with_index[0].second]; // temp-> reprojection  오차가 가장 작은 코너순서
-    solvePnP(world_table_outside_corners, img_corners, INTRINSIC, distCoeffs, rvec, tvec);
-
-    
-    // 각 공의 3D world 좌표계 기준 위치 계산.
+    // 구해진 카메라 pose를 이용하여 각 공의 world 위치 계산
     Mat R;
     Rodrigues(rvec, R);
     Mat R_inv = R.inv();
@@ -102,30 +77,34 @@ vector<Point2i>& wor_ball_cen)
 
     int hei = ball_rad;
     vector<Point2i> wor_ball(b_n);
+    
     for(int i=0; i<b_n ; i++){
-        double s =  (hei + B.at<double>(2,i)) /( A.at<double>(2,i) + 1e-8);
+        double s =  (hei + B.ptr<double>(2)[i]) /( A.ptr<double>(2)[i] + 1e-8);
 
-        int x = (int)( s * A.at<double>(0,i) - B.at<double>(0,i));
-        int y = (int)( s * A.at<double>(1,i) - B.at<double>(1,i));
+        int x = (int)( s * A.ptr<double>(0)[i] - B.ptr<double>(0)[i]);
+        int y = (int)( s * A.ptr<double>(1)[i] - B.ptr<double>(1)[i]);
         wor_ball[i] = Point2i(x,y);
     }
 
 
+    // put the output
+    wor_ball_cen = wor_ball; 
 
-    wor_ball_cen = wor_ball;  // put the output
-
-    wor_ball_loc.resize(b_n);
-    for(int i=0; i<b_n ; i++){
-        wor_ball_loc[i] = Vec3i(wor_ball[i].x, wor_ball[i].y, hei);
+    if(update){   // world 공 좌표 업데이트
+        wor_ball_loc.resize(b_n);
+        for(int i=0; i<b_n ; i++){
+            wor_ball_loc[i] = Point3i(wor_ball[i].x, wor_ball[i].y, 0);
+        }
+    
+        world_ball_color_ref = ball_color_ref;
     }
     
-    world_ball_color_ref = ball_color_ref;
-    
-    return true;
+    return 0;
 }
 
+
 void Geo_Proc::Draw_Obj_on_Templete(){
-    Ball_and_Sol_templete = Mat(B_H,B_W, CV_8UC3);   // for drawing
+    Ball_and_Sol_templete = Mat(B_H,B_W, CV_8UC3, Scalar(0,0,0));   // for drawing
 
     int b_n = wor_ball_loc.size();
 
@@ -151,8 +130,33 @@ void Geo_Proc::Draw_Obj_on_Templete(){
 
 void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
-    if(img_corners.size() != 4)
-        return;
+    // *****당구공아래에 원 표시*****
+
+    Mat output;
+    Mat H = getPerspectiveTransform(H_wor_pts, H_img_pts);
+
+    warpPerspective(Ball_and_Sol_templete, output, H, img.size(), INTER_NEAREST);
+
+    Mat mask = (output != Scalar(0,0,0));
+    output.copyTo(img, mask);
+
+
+    // 공 바닥 중점 표시 + 이거랑 코너도 안쪽 코너로 해야하는것 잊지 말기!!
+    /*
+    int size = wor_ball_loc.size();
+    for(int i=0; i<size ; i++){
+        object_wor_pt[i] = Point3d(wor_ball_loc[i].x, wor_ball_loc[i].y, 0);
+    }
+
+    projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
+    for(int i=0; i<size; i++){
+        circle(img, Point(object_img_pt[i].x, object_img_pt[i].y), 2, Scalar(255,255,255), 2, 8, 0);
+    }
+    */
+}
+
+
+void Geo_Proc::Draw_Object(Mat& img){
 
     vector<Point3d> object_wor_pt;
     vector<Point2d> object_img_pt;
@@ -172,7 +176,6 @@ void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
 
 
-
     // 코너 그대로 사영시키기
     projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
 
@@ -184,10 +187,11 @@ void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
     }
 
 
+
+
+    // 안쪽 테두리 표시
     object_wor_pt.resize(4);
 
-    int depth = 20;
-    
     object_wor_pt[0] = Point3d(0,0,0);
     object_wor_pt[1] = Point3d(B_W,0,0);
     object_wor_pt[2] = Point3d(B_W,B_H,0);
@@ -195,40 +199,13 @@ void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
     projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
 
-
-
-    // 안쪽 테두리 표시
     for(int i=0; i<4; i++){
         line(img, object_img_pt[i%4], object_img_pt[(i+1)%4], Scalar(0,255,255), 2);
-        //circle(img, Point(object_img_pt[i].x, object_img_pt[i].y), 10, Scalar(0, 255, 255), 2, 8, 0);
     }
 
-
-    // *****당구공아래에 원 표시*****
-    vector<Point2f> table_corner(4);
-    table_corner[0] = Point2f(0,0);
-    table_corner[1] = Point2f(B_W,0);
-    table_corner[2] = Point2f(B_W,B_H);
-    table_corner[3] = Point2f(0,B_H);
-
-
-    vector<Point2f> img_corners_f(4);
-    for(int i=0; i<4 ; i++)
-        img_corners_f[i] = object_img_pt[i];
-    
-
-    Mat output;
-    Mat H = getPerspectiveTransform(table_corner, img_corners_f);
-
-    warpPerspective(Ball_and_Sol_templete, output, H, img.size(), INTER_NEAREST);
-
-    Mat mask = (output != Scalar(0,0,0));
-    output.copyTo(img, mask);
-
-
-    // 임의의 직선 그리기
-
 }
+
+
 
 void Geo_Proc::Clear_prev_frame_info(){
     img_corners.clear();
