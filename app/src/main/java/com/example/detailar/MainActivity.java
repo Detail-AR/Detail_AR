@@ -143,7 +143,8 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
 
         FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr());
 
-        Size szAfter = new Size(720, 480); // Scale back down to 640x480 (original dim.)
+        /* Size  */
+        Size szAfter = new Size(960, 720); // Scale back down to 640x480 (original dim.)
         Imgproc.resize(resizeImage, matResult, szAfter);
 
         return matResult;
