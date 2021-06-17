@@ -10,9 +10,9 @@ double Vector_Degree(double x, double c_x, double y, double c_y){
 
             
         if(ratio >= 1.0)  // nan 문제 발생.
-            Rad=  acos( ratio - 0.001 );
+            Rad=  acos( ratio - 0.0001 );
         else if(ratio <= -1.0)
-            Rad=  acos( ratio + 0.001 );
+            Rad=  acos( ratio + 0.0001 );
         else
             Rad=  acos( dot_pro / dDen );
     
@@ -155,4 +155,35 @@ bool Point_Duplicate_check(int x, int y, vector<Point2i>& pts){
             flag = false;
     }
     return flag;
+}
+
+double Dist_of_Rotation(Mat& rvec1, Mat& rvec2)
+{
+    Mat R1, R2;
+    Rodrigues(rvec1, R1);
+    Rodrigues(rvec2, R2);
+
+    Mat R = R1*R2.t();
+    double diff = (trace(R)[0] - 1)/2;
+    double Rad;
+
+    if(diff >= 1.0)  // nan 문제 발생.
+        Rad=  acos( diff - 0.0001 );
+    else if(diff <= -1.0)
+        Rad=  acos( diff+ 0.0001 );
+    else
+        Rad=  acos( diff );
+
+    return Rad;
+
+}
+
+double Dist_of_Translation(Mat& tvec1, Mat& tvec2)
+{
+    double sum=0;
+    for(int i=0; i<3 ; i++){
+        double diff = (tvec1.ptr<double>(i)[0] -  tvec2.ptr<double>(i)[0]);
+        sum += diff*diff;
+    }
+    return sqrt(sum);
 }

@@ -33,16 +33,11 @@ void Detect_Billiard_Hole(Mat& input, Mat& output1, Mat& output2) // ** 영상�
     Mat element(H_Size,H_Size, CV_8U, Scalar(1));
     morphologyEx(border, morph, MORPH_CLOSE, element);  //
 
-
     Mat subtract = morph - border;
-
 
     Mat eroded;
     erode(subtract, eroded, Mat::ones(Size(3,3),CV_8UC1),Point(-1,-1),1);
     Mat edge = subtract- eroded;
-
-
-
 
     Mat subtract_roi = subtract(Rect(H_Size+1,H_Size+1, input.cols, input.rows));
     output1 = subtract_roi;

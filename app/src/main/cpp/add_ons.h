@@ -17,6 +17,8 @@ void Sort_Corners_Clockwise(vector<Point2i>& corners);
 int Get_Area(Point2i X, Point2i Y, Point2i Z);
 double double_vector_dist_sum(vector<Point2d>&a, vector<Point2d>&b);
 void Clockwise_Permutation(vector<Point2d>& pts);
+double Dist_of_Rotation(Mat& rvec1, Mat& rvec2);
+double Dist_of_Translation(Mat& tvec1, Mat& tvec2);
 
 
 #endif
