@@ -190,8 +190,15 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
                 if (sizes != null) {
                     /* Select the size that fits surface considering maximum size allowed */
                     Size frameSize = calculateCameraFrameSize(sizes, new JavaCameraSizeAccessor(), width, height);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                    //Size frameSize = new Size(1440, 1080);
+=======
+>>>>>>> 595955a1110c563f04289520b94ec05d268a9f79
                     // Size frameSize = new Size(960, 720);
 
+>>>>>>> 914a2530df7e79800b0eea6b6c749959fbd5717d
                     params.setPreviewFormat(ImageFormat.NV21);
                     Log.d(TAG, "Set preview size to " + Integer.valueOf((int)frameSize.width) + "x" + Integer.valueOf((int)frameSize.height));
                     params.setPreviewSize((int)frameSize.width, (int)frameSize.height);

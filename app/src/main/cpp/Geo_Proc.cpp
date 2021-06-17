@@ -1,6 +1,17 @@
 #include "Geo_Proc.hpp"
 #include "add_ons.h"
 #include "basic.h"
+#include <android/log.h>
+
+/* C++ log output example
+#include <android/log.h>
+
+ __android_log_print(
+        ANDROID_LOG_INFO,
+        "Cam and Balls 3d Loc",
+        " Dist index %d %d\n",
+        1, 2);
+*/
 
 /* C++ log output example
 #include <android/log.h>
