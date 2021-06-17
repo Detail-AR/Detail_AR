@@ -7,6 +7,7 @@
 #include "Detect_Table_Func.cpp"
 #include "Detect_Ball_Func.cpp"
 #include "Geo_Proc.cpp"
+#include "Find_Cam_Pos.cpp"
 
 using namespace cv;
 

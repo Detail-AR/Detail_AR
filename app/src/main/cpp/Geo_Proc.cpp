@@ -2,6 +2,16 @@
 #include "add_ons.h"
 #include "basic.h"
 
+/* C++ log output example
+#include <android/log.h>
+
+ __android_log_print(
+        ANDROID_LOG_INFO,
+        "Cam and Balls 3d Loc",
+        " Dist index %d %d\n",
+        1, 2);
+*/
+
 Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(40), edge_thickness(52), B_W(1500), B_H(2730) {   // 입력 영상의 픽셀을 고려해야함.
     double * intrinsic_para;
 
@@ -88,7 +98,7 @@ vector<Point2i>& wor_ball_cen, bool update)
 
 
     // put the output
-    wor_ball_cen = wor_ball; 
+    wor_ball_cen = wor_ball;
 
     if(update){   // world 공 좌표 업데이트
         wor_ball_loc.resize(b_n);
