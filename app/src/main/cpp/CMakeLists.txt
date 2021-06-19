@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-// /Users/poiu694/Desktop/File/Detail_AR
-set(pathPROJECT C:/Users/bsu13/Documents/Detail_AR) # 수정필요
+# /Users/poiu694/Desktop/File/Detail_AR
+# C:/Users/bsu13/Documents/Detail_AR
+set(pathPROJECT /Users/poiu694/Desktop/File/Detail_AR) # 수정필요
 set(pathOPENCV ${pathPROJECT}/sdk)
 set(pathLIBOPENCV_JAVA ${pathOPENCV}/native/libs/${ANDROID_ABI}/libopencv_java4.so)
 
@@ -16,9 +17,7 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
-        ${pathPROJECT}/app/src/main/cpp/native-lib.cpp
-
-        )
+        ${pathPROJECT}/app/src/main/cpp/native-lib.cpp)
 
 
 
