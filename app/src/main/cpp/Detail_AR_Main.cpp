@@ -12,12 +12,13 @@ void Detail_AR_Main(Mat& input, Mat& output){
 
     if(img.cols>img.rows){
         resize(img, img, Size(1000,562));
-        geo_proc.Set_Device_Dir(true); // 가로방향
+        geo_proc.Set_Device_Dir(true, img); // 가로방향
     }
     else{
         resize(img, img, Size(562,1000));
-        geo_proc.Set_Device_Dir(false); // 세로방향
+        geo_proc.Set_Device_Dir(false, img); // 세로방향
     }
+
 
     detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 

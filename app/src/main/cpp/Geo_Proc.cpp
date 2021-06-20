@@ -204,7 +204,6 @@ void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
     Mat mask;
     cvtColor(output, mask, COLOR_BGR2GRAY);
     threshold(mask, mask, 0, 255, THRESH_BINARY);
-    imshow("img", output);
     output.copyTo(img, mask);
 }
 
