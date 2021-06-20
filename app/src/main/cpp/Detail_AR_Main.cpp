@@ -53,7 +53,7 @@ void Detail_AR_Main(Mat& input, Mat& output){
                 if(can_find_pose != -1){
                     geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                     geo_proc.Draw_3D_Templete_on_Img(img);
-                    find_ball_loc = true;
+                    //find_ball_loc = true;
                 }
             }
 

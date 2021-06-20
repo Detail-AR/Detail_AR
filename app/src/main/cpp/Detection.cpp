@@ -5,10 +5,13 @@
 void Detection::Set_Image(Mat& input_img, bool flag){
     img = input_img;
 
-    if(flag)
-        cvtColor(img, img_hsv, COLOR_BGR2HSV); // 안드로이드 에서는 RGB2HSV
-    else
+    if(flag) {
+        cvtColor(img, img_hsv, COLOR_BGR2HSV);
+    }
+    else {
         cvtColor(img, img_hsv, COLOR_RGB2HSV); // 안드로이드 에서는 RGB2HSV
+        cvtColor(input_img, input_img, COLOR_BGRA2BGR); // 안드로이드는 4채널을 불러오기 때문
+    }
 }
 
 int Detection::Detect_Billiard_Corners(vector<Point2i>& input_corners){

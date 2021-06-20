@@ -1,6 +1,7 @@
 #include "Geo_Proc.hpp"
 #include "add_ons.h"
 #include "basic.h"
+#include <android/log.h>
 
 Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(-40), edge_thickness(52), B_W(1500), B_H(2730) {   // 입력 영상의 픽셀을 고려해야함.
     double * intrinsic_para;
@@ -190,23 +191,24 @@ double& distance){
 }
 
 
-void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
+void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img) {
 
     // *****당구공아래에 원 표시*****
-    
+
 
     Mat output;
     Mat H = getPerspectiveTransform(H_wor_pts, H_img_pts);
- 
+
 
     warpPerspective(Ball_and_Sol_templete, output, H, img.size(), INTER_NEAREST);
-    
+
     Mat mask;
     cvtColor(output, mask, COLOR_BGR2GRAY);
-    threshold(mask, mask, 0, 255, THRESH_BINARY);
-    output.copyTo(img, mask);
+    threshold(mask, mask, 0, 255, THRESH_BINARY_INV);
+    Mat fg;
+    bitwise_and(img, img, fg, mask);
+    img = fg+output;
 }
-
 
 void Geo_Proc::Draw_Object(Mat& img){
 
