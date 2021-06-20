@@ -1,34 +1,14 @@
 #include "Geo_Proc.hpp"
 #include "add_ons.h"
 #include "basic.h"
-#include <android/log.h>
 
-/* C++ log output example
-#include <android/log.h>
-
- __android_log_print(
-        ANDROID_LOG_INFO,
-        "Cam and Balls 3d Loc",
-        " Dist index %d %d\n",
-        1, 2);
-*/
-
-/* C++ log output example
-#include <android/log.h>
-
- __android_log_print(
-        ANDROID_LOG_INFO,
-        "Cam and Balls 3d Loc",
-        " Dist index %d %d\n",
-        1, 2);
-*/
-
-Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(40), edge_thickness(52), B_W(1500), B_H(2730) {   // 입력 영상의 픽셀을 고려해야함.
+Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(-40), edge_thickness(52), B_W(1500), B_H(2730) {   // 입력 영상의 픽셀을 고려해야함.
     double * intrinsic_para;
 
     double f = f_len;
     double cx = 500;
     double cy = 300;
+
 
     if(device_dir) // 가로방향 // {fx, 0, cx, 0, fy, cy, 0, 0, 1};
         intrinsic_para = new double[9]{f, 0, cx, 0, f, cy, 0, 0, 1};
@@ -50,10 +30,24 @@ Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(40), edge_thickness(52
     world_table_outside_corners[3] = Point3d(-edge_thickness, B_H+edge_thickness, table_depth);
     world_table_outside_corners[0] = Point3d(-edge_thickness, -edge_thickness, table_depth);
 
+    world_table_inside_corners_d.resize(4);
+    world_table_inside_corners_f.resize(4);
+
+    world_table_inside_corners_d[0] = Point3d(0,0,0);
+    world_table_inside_corners_d[1] = Point3d(B_W,0,0);
+    world_table_inside_corners_d[2] = Point3d(B_W,B_H,0);
+    world_table_inside_corners_d[3] = Point3d(0,B_H,0);
+
+    world_table_inside_corners_f[0] = Point3f(0,0,0);
+    world_table_inside_corners_f[1] = Point3f(B_W,0,0);
+    world_table_inside_corners_f[2] = Point3f(B_W,B_H,0);
+    world_table_inside_corners_f[3] = Point3f(0,B_H,0);
+
 }
 
-void Geo_Proc::Set_Device_Dir(bool dir){
+void Geo_Proc::Set_Device_Dir(bool dir, Mat& img){
     device_dir = dir;
+    temp_img = img;
 }
 
 
@@ -70,12 +64,23 @@ vector<Point2i>& wor_ball_cen, bool update)
 
     if(pose_flag){   // 카메라 pose를 구할수 있다면  포즈 정보 업데이트.
         img_corners = output_corners;
+
+        // for drawing.
+        projectPoints(world_table_inside_corners_f, in_rvec, in_tvec, INTRINSIC, distCoeffs, H_img_pts);
+
+        H_wor_pts.resize(4);
+        H_wor_pts[0] = Point2f(0,0);
+        H_wor_pts[1] = Point2f(B_W,0);
+        H_wor_pts[2] = Point2f(B_W,B_H);
+        H_wor_pts[3] = Point2f(0,B_H);
+        
         rvec = in_rvec;
         tvec = in_tvec;
     }
     else
         return -1; // 카메라 pose를 알 수 없으므로 공 위치파악 불가.
 
+                   
 
     // 구해진 카메라 pose를 이용하여 각 공의 world 위치 계산
     Mat R;
@@ -96,7 +101,7 @@ vector<Point2i>& wor_ball_cen, bool update)
     Mat B = R_inv*TVEC; 
 
 
-    int hei = ball_rad;
+    int hei = -ball_rad;
     vector<Point2i> wor_ball(b_n);
     
     for(int i=0; i<b_n ; i++){
@@ -104,76 +109,103 @@ vector<Point2i>& wor_ball_cen, bool update)
 
         int x = (int)( s * A.ptr<double>(0)[i] - B.ptr<double>(0)[i]);
         int y = (int)( s * A.ptr<double>(1)[i] - B.ptr<double>(1)[i]);
-        wor_ball[i] = Point2i(x,y);
+        wor_ball[i] = Point2i(x,y);   // 공의 위치가 이상하면 기각하는 코드 추가
     }
+
 
 
     // put the output
-    wor_ball_cen = wor_ball;
+    wor_ball_cen = wor_ball; 
 
-    if(update){   // world 공 좌표 업데이트
-        wor_ball_loc.resize(b_n);
+    bool first_red = false;
+    int ball_r = -ball_rad;
+    /// *** world ball 좌표 R R Y W 순으로 업데이트 ***
+    if(update){     
+        wor_ball_loc.resize(4);
+        world_ball_color_ref.assign(4, -1);
+
         for(int i=0; i<b_n ; i++){
-            wor_ball_loc[i] = Point3i(wor_ball[i].x, wor_ball[i].y, 0);
+            if(ball_color_ref[i] == 0 && !first_red){
+                wor_ball_loc[0] = Point3d(wor_ball[i].x, wor_ball[i].y, ball_r);
+                world_ball_color_ref[0] = 0;
+                first_red = true;
+            }
+            else if(ball_color_ref[i] == 0 && first_red){
+                wor_ball_loc[1] = Point3d(wor_ball[i].x, wor_ball[i].y, ball_r);
+                world_ball_color_ref[1] = 0;
+            }
+            else if(ball_color_ref[i] == 1){
+                wor_ball_loc[2] = Point3d(wor_ball[i].x, wor_ball[i].y, ball_r);
+                world_ball_color_ref[2] = 1;
+            }
+            else if(ball_color_ref[i] == 2){
+                wor_ball_loc[3] = Point3d(wor_ball[i].x, wor_ball[i].y, ball_r);
+                world_ball_color_ref[3] = 2;
+            }
         }
-    
-        world_ball_color_ref = ball_color_ref;
     }
     
+    wor_ball_n = b_n;
     return 0;
 }
 
 
 void Geo_Proc::Draw_Obj_on_Templete(){
     Ball_and_Sol_templete = Mat(B_H,B_W, CV_8UC3, Scalar(0,0,0));   // for drawing
-
-    int b_n = wor_ball_loc.size();
-
-
-    
-    for(int i=0; i<b_n ; i++){
+                    
+    for(int i=0; i<4 ; i++){
         Scalar color;
+
         if(world_ball_color_ref[i] == 0)
-            color = Scalar(0,0,255);
+            color = Scalar(50,50,255);
         else if(world_ball_color_ref[i] == 1 )
-            color = Scalar(0, 255, 255);
-        else
+            color = Scalar(50, 255, 255);
+        else if(world_ball_color_ref[i] == 2 )
             color = Scalar(255,255,255);
-
-        circle(Ball_and_Sol_templete, Point(wor_ball_loc[i].x, wor_ball_loc[i].y), ball_rad, color, 10, 8, 0);
+        else
+            continue;
+                        
+        circle(Ball_and_Sol_templete, Point(wor_ball_loc[i].x, wor_ball_loc[i].y), ball_rad, color, 8, 8, 0);
     }
+                   
+}
 
-    //resize(Ball_and_Sol_templete, Ball_and_Sol_templete,Size(500, 1000));
-    //imshow("result", Ball_and_Sol_templete);
 
+bool Geo_Proc::Reprojection_Error(vector<Point3d>& match1, vector<Point2d>& match2,  Mat& rvec_, Mat& tvec_, 
+double& distance){
+
+    bool PnP_flag;
+    vector<Point2d> reproject_point;
+    PnP_flag = solvePnP(match1, match2, INTRINSIC, distCoeffs, rvec_, tvec_);
+
+    if(PnP_flag){
+        projectPoints(match1, rvec_, tvec_, INTRINSIC, distCoeffs, reproject_point);
+        distance = double_vector_dist_sum(match2, reproject_point);
+        return true;
+    }
+    else{
+        distance = numeric_limits<double>::max();
+        return false;
+    }
 }
 
 
 void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
     // *****당구공아래에 원 표시*****
+    
 
     Mat output;
     Mat H = getPerspectiveTransform(H_wor_pts, H_img_pts);
+ 
 
     warpPerspective(Ball_and_Sol_templete, output, H, img.size(), INTER_NEAREST);
-
-    Mat mask = (output != Scalar(0,0,0));
+    
+    Mat mask;
+    cvtColor(output, mask, COLOR_BGR2GRAY);
+    threshold(mask, mask, 0, 255, THRESH_BINARY);
+    imshow("img", output);
     output.copyTo(img, mask);
-
-
-    // 공 바닥 중점 표시 + 이거랑 코너도 안쪽 코너로 해야하는것 잊지 말기!!
-    /*
-    int size = wor_ball_loc.size();
-    for(int i=0; i<size ; i++){
-        object_wor_pt[i] = Point3d(wor_ball_loc[i].x, wor_ball_loc[i].y, 0);
-    }
-
-    projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
-    for(int i=0; i<size; i++){
-        circle(img, Point(object_img_pt[i].x, object_img_pt[i].y), 2, Scalar(255,255,255), 2, 8, 0);
-    }
-    */
 }
 
 
@@ -211,14 +243,9 @@ void Geo_Proc::Draw_Object(Mat& img){
 
 
     // 안쪽 테두리 표시
-    object_wor_pt.resize(4);
 
-    object_wor_pt[0] = Point3d(0,0,0);
-    object_wor_pt[1] = Point3d(B_W,0,0);
-    object_wor_pt[2] = Point3d(B_W,B_H,0);
-    object_wor_pt[3] = Point3d(0,B_H,0);
 
-    projectPoints(object_wor_pt, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
+    projectPoints(world_table_inside_corners_d, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
 
     for(int i=0; i<4; i++){
         line(img, object_img_pt[i%4], object_img_pt[(i+1)%4], Scalar(0,255,255), 2);
