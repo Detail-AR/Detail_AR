@@ -12,12 +12,13 @@ void Detail_AR_Main(Mat& input, Mat& output){
 
     if(img.cols>img.rows){
         resize(img, img, Size(1000,562));
-        geo_proc.Set_Device_Dir(true); // 가로방향
+        geo_proc.Set_Device_Dir(true, img); // 가로방향
     }
     else{
         resize(img, img, Size(562,1000));
-        geo_proc.Set_Device_Dir(false); // 세로방향
+        geo_proc.Set_Device_Dir(false, img); // 세로방향
     }
+
 
     detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 
@@ -35,27 +36,27 @@ void Detail_AR_Main(Mat& input, Mat& output){
 
         
         // 상황1
-
         if(situation == 1){
 
             Corners_num = detect.Detect_Billiard_Corners(corners);
+        
             Balls_num = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
-
+       
             // 제일 처음 모든 공의 위치를 파악하기 위함.
-            if(Corners_num == 4 && Balls_num >= 3){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
+            if(Corners_num == 4 && Balls_num >= 4){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
                 can_find_pose = geo_proc.Find_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen, true);
-            
+                           
                 //if can_fidnd_pose is true;  false -> continue;
 
-                // here, we need solution class --->>   input: wor_ball_cen,  output: solution arrow.
+                // here, we need solution class --->>   input: wor_ball_cen, ball_color_ref  output: solution arrow.
 
-                geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
-
-                if(can_find_pose != -1)
+                if(can_find_pose != -1){
+                    geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                     geo_proc.Draw_3D_Templete_on_Img(img);
+                    //find_ball_loc = true;
+                }
             }
 
-            find_ball_loc = true;
         }
 
                       
@@ -65,21 +66,18 @@ void Detail_AR_Main(Mat& input, Mat& output){
         if(situation == 2){
             Corners_num = detect.Detect_Billiard_Corners(corners);
             Balls_num = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
-
-
+ 
             if(Corners_num != -1 || Balls_num != -1 ){   // 공, 코너 둘중 하나라도 감지해야함.
                 can_find_pose = geo_proc.Find_Cam_Pos(corners, balls_center, ball_color_ref);
 
                 if(can_find_pose != -1){   // 포즈를 추정할 수 있다면
                     geo_proc.Draw_3D_Templete_on_Img(img);
+ 
                 }
             }
 
             //geo_proc.Remove_Drawing_Info();
         }
-
-
-
         // for debugging
 
         if(can_find_pose == 0)
@@ -91,6 +89,10 @@ void Detail_AR_Main(Mat& input, Mat& output){
         if(Corners_num != 0){
             detect.Draw_Corners(img, corners);
         }
+
+        // output = img; // for android
+        detect.Clear_prev_frame_info();
+        //geo_proc.Clear_prev_frame_info();
 
         if(find_ball_loc)
             situation = 2;
