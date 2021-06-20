@@ -1,5 +1,6 @@
 package com.example.detailar;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -14,17 +15,18 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        IntroThread introThread = new IntroThread(handler);
-        introThread.start();
-    }
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
-    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg){
-            if(msg.what == 1){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
                 Intent intent = new Intent(IntroActivity.this, MainActivity.class);
                 startActivity(intent);
+
+                finish();
             }
-        }
-    };
+        }, 2000);
+    }
 }
