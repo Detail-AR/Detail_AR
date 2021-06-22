@@ -3,6 +3,7 @@
 #include "Detect_Ball_Func.hpp"
 
 void Detection::Set_Image(Mat& input_img, bool flag){
+
     img = input_img;
 
     if(flag) {

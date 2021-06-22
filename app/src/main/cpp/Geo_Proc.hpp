@@ -39,7 +39,11 @@ class Geo_Proc
 
 
     public:
-    
+
+    Mat g(){
+        return rvec;
+    }
+
     Geo_Proc(int f_len);
     void Set_Device_Dir(bool dir, Mat& img);
     int Find_Balls_3D_Loc(vector<Point2i>& corners, vector<Point2i>& balls_center, vector<int>& ball_color_ref,
