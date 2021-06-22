@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
     private Mat matInput;
     private Mat matResult;
     private PortraitCameraView mOpenCvCameraView; // 카메라 역할
+    private Size matSize;
 
     public native void FindBiliards(long matAddrInput, long matAddrResult); // native-lib에서 구현
 
@@ -145,8 +146,11 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
 
         FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr());
 
+        matSize = new Size(mOpenCvCameraView.mWidth, mOpenCvCameraView.mHeight);
+        String TAG = new StringBuilder(_TAG).append("onCreateSize").toString();
+
         /* Size 960 - 720, 720 - 480 */
-        Size szAfter = new Size(960, 720); // Scale back down to 640x480 (original dim.)
+        Size szAfter = new Size(matSize.width, matSize.height); // Scale back down to 640x480 (original dim.)
         Imgproc.resize(resizeImage, matResult, szAfter);
 
         return matResult;

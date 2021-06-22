@@ -34,6 +34,9 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
     protected JavaCameraFrame[] mCameraFrame;
     private SurfaceTexture mSurfaceTexture;
 
+    public int mWidth;
+    public int mHeight;
+
     public static class JavaCameraSizeAccessor implements ListItemAccessor {
         @Override
         public int getWidth(Object obj) {
@@ -55,6 +58,35 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
     public void setCameraPermissionGranted() {
 
     }
+
+//    public Size getMobileSize() {
+//        Camera.Parameters params = mCamera.getParameters();
+////        Log.d(TAG, "getSupportedPreviewSizes() : ");
+////        List<Camera.Size> sizes = params.getSupportedPreviewSizes();
+////        ListItemAccessor accessor = new JavaCameraSizeAccessor();
+////
+////        int calcWidth = 0;
+////        int calcHeight = 0;
+////
+////        int maxAllowedWidth = (mMaxWidth != -1 && mMaxWidth < surfaceWidth)? mMaxWidth : surfaceWidth;
+////        int maxAllowedHeight = (mMaxHeight != -1 && mMaxHeight < surfaceHeight)? mMaxHeight : surfaceHeight;
+////
+////        for (Object size : sizes) {
+////            int width = accessor.getWidth(size);
+////            int height = accessor.getHeight(size);
+////
+////            if (width <= maxAllowedWidth && height <= maxAllowedHeight) {
+////                if (width >= calcWidth && height >= calcHeight) {
+////                    calcWidth = (int) width;
+////                    calcHeight = (int) height;
+////                }
+////            }
+////        }
+//        mFrameWidth = params.getPreviewSize().width;
+//        mFrameHeight = params.getPreviewSize().height;
+//
+//        return new Size(mFrameWidth, mFrameHeight);
+//    }
 
     public void setFocusMode(Context item, int type) {
 
@@ -121,6 +153,7 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
                 Log.d(TAG, "Trying to open camera with old open()");
                 try {
                     mCamera = Camera.open();
+//                    Camera.Size size = mCamera.new Size(480, 480);
                 }
                 catch (Exception e){
                     Log.e(TAG, "Camera is not available (in use or does not exist): " + e.getLocalizedMessage());
@@ -191,11 +224,12 @@ public class PortraitCameraView extends PortraitCameraBridgeViewBase implements 
                     /* Select the size that fits surface considering maximum size allowed */
                     Size frameSize = calculateCameraFrameSize(sizes, new JavaCameraSizeAccessor(), width, height);
 
-                    // Size frameSize = new Size(960, 720);
 
                     params.setPreviewFormat(ImageFormat.NV21);
                     Log.d(TAG, "Set preview size to " + Integer.valueOf((int)frameSize.width) + "x" + Integer.valueOf((int)frameSize.height));
                     params.setPreviewSize((int)frameSize.width, (int)frameSize.height);
+                    mWidth = (int)frameSize.width;
+                    mHeight = (int)frameSize.height;
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && !Build.MODEL.equals("GT-I9100"))
                         params.setRecordingHint(true);
