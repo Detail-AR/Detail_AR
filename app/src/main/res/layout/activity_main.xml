@@ -10,8 +10,6 @@
     <com.example.detailar.PortraitCameraView
         android:id="@+id/cameraView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        opencv:show_fps="true"
-        opencv:camera_id="back"/>
+        android:layout_height="match_parent"/>
 
 </FrameLayout>
