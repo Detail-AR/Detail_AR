@@ -77,11 +77,11 @@ vector<Point2i>& wor_ball_cen, bool update)
         
         rvec = in_rvec;
         tvec = in_tvec;
+
     }
     else
         return -1; // 카메라 pose를 알 수 없으므로 공 위치파악 불가.
 
-                   
 
     // 구해진 카메라 pose를 이용하여 각 공의 world 위치 계산
     Mat R;
@@ -112,7 +112,6 @@ vector<Point2i>& wor_ball_cen, bool update)
         int y = (int)( s * A.ptr<double>(1)[i] - B.ptr<double>(1)[i]);
         wor_ball[i] = Point2i(x,y);   // 공의 위치가 이상하면 기각하는 코드 추가
     }
-
 
 
     // put the output
@@ -147,6 +146,7 @@ vector<Point2i>& wor_ball_cen, bool update)
     }
     
     wor_ball_n = b_n;
+
     return 0;
 }
 
@@ -191,16 +191,17 @@ double& distance){
 }
 
 
-void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img) {
+void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
     // *****당구공아래에 원 표시*****
-
+    
 
     Mat output;
     Mat H = getPerspectiveTransform(H_wor_pts, H_img_pts);
-
+ 
 
     warpPerspective(Ball_and_Sol_templete, output, H, img.size(), INTER_NEAREST);
+    
 
     Mat mask;
     cvtColor(output, mask, COLOR_BGR2GRAY);
@@ -209,6 +210,7 @@ void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img) {
     bitwise_and(img, img, fg, mask);
     img = fg+output;
 }
+
 
 void Geo_Proc::Draw_Object(Mat& img){
 

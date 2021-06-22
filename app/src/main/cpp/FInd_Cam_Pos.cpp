@@ -9,6 +9,7 @@ int Geo_Proc::Find_Cam_Pos(vector<Point2i>& input_corners, vector<Point2i>& ball
     Mat in_rvec, in_tvec;
     vector<Point2d> output_corners;
 
+
     int ball_num = balls_center.size();
     int corner_num = input_corners.size();
     bool pose_flag;
@@ -16,6 +17,7 @@ int Geo_Proc::Find_Cam_Pos(vector<Point2i>& input_corners, vector<Point2i>& ball
     if(corner_num == 4){  // can_find_pose == 0
         // 공의 갯수와 상관 없이 4개의 코너를 이용해서 계산.
         pose_flag = Cam_Pos_with_Four_Corners(input_corners, output_corners, in_rvec, in_tvec, true);
+
         if(pose_flag){   // 카메라 pose를 구할수 있다면  포즈 정보 업데이트.
             img_corners = output_corners;
         }
@@ -123,7 +125,7 @@ Mat& in_rvec, Mat& in_tvec, bool comp_prev){
 
         Mat in_rvec2 = temp_rvec[id2];
         Mat in_tvec2 = temp_tvec[id2];
-        
+
         double dist_r1 = Dist_of_Rotation(rvec, in_rvec1);
         double dist_r2 = Dist_of_Rotation(rvec, in_rvec2);
         double dist_t1 = Dist_of_Translation(tvec, in_tvec1);
@@ -298,15 +300,6 @@ vector<int>& ball_color_ref, Mat& in_rvec, Mat& in_tvec){
         //return false;
 
 
-
-    // for debug
-    int n;
-    if(red_n>0)
-        n=16;
-    else
-        n=8;
-
-
     in_rvec = temp_rvec[best_i];
     in_tvec = temp_tvec[best_i];
     
@@ -394,10 +387,7 @@ vector<int>& ball_color_ref, Mat& in_rvec, Mat& in_tvec){
                 match_list1[id] = match1;
                 match_list2[id] = match2;
 
-                cout<<match1<<red1_i<<endl;;
                 swap(match1[red1_i+1], match1[red2_i+1]);  // red red 끼리 교환.
-                cout<<match1<<red2_i<<endl;
-                cout<<endl;
                 id++;   
             }
         }
@@ -430,8 +420,9 @@ vector<int>& ball_color_ref, Mat& in_rvec, Mat& in_tvec){
 
     in_rvec = temp_rvec[best_i];
     in_tvec = temp_tvec[best_i];
+    
 
-
+ 
     return true;
 }
 
