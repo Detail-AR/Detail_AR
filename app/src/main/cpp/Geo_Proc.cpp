@@ -1,14 +1,15 @@
 #include "Geo_Proc.hpp"
 #include "add_ons.h"
 #include "basic.h"
-#include <android/log.h>
 
-Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(-40), edge_thickness(52), B_W(1500), B_H(2730) {   // 입력 영상의 픽셀을 고려해야함.
+
+Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(-40), edge_thickness(52), B_W(1224), B_H(2448), e_num(0), cum(0)
+{   // 입력 영상의 픽셀을 고려해야함.
     double * intrinsic_para;
 
     double f = f_len;
-    double cx = 500;
-    double cy = 300;
+    double cx = 240;
+    double cy = 360;
 
 
     if(device_dir) // 가로방향 // {fx, 0, cx, 0, fy, cy, 0, 0, 1};
@@ -17,10 +18,7 @@ Geo_Proc::Geo_Proc(int f_len) : ball_rad(33), table_depth(-40), edge_thickness(5
         intrinsic_para = new double[9]{f, 0, cy, 0, f, cx, 0, 0, 1};
 
     INTRINSIC = Mat(3,3, CV_64FC1, intrinsic_para);
-
     distCoeffs = Mat();
-    //Mat_<double>(4, 1) << 0.040982,  -0.026665,  -0.007009,  0.000758 ;
-
 
     world_table_outside_corners.resize(4);
 
@@ -59,12 +57,10 @@ vector<Point2i>& wor_ball_cen, bool update)
         return -1;
     
     Mat in_rvec, in_tvec;
-    vector<Point2d> output_corners(4);
     
-    bool pose_flag = Cam_Pos_with_Four_Corners(input_corners, output_corners, in_rvec, in_tvec, false);
+    bool pose_flag = Cam_Pos_with_Four_Corners(input_corners,  in_rvec, in_tvec, false);
 
     if(pose_flag){   // 카메라 pose를 구할수 있다면  포즈 정보 업데이트.
-        img_corners = output_corners;
 
         // for drawing.
         projectPoints(world_table_inside_corners_f, in_rvec, in_tvec, INTRINSIC, distCoeffs, H_img_pts);
@@ -158,9 +154,9 @@ void Geo_Proc::Draw_Obj_on_Templete(){
         Scalar color;
 
         if(world_ball_color_ref[i] == 0)
-            color = Scalar(50,50,255);
+            color = Scalar(255,20,20);
         else if(world_ball_color_ref[i] == 1 )
-            color = Scalar(50, 255, 255);
+            color = Scalar(255, 255, 20);
         else if(world_ball_color_ref[i] == 2 )
             color = Scalar(255,255,255);
         else
@@ -172,22 +168,89 @@ void Geo_Proc::Draw_Obj_on_Templete(){
 }
 
 
-bool Geo_Proc::Reprojection_Error(vector<Point3d>& match1, vector<Point2d>& match2,  Mat& rvec_, Mat& tvec_, 
+void Geo_Proc::Reprojection_Error(vector<Point3d>& match1, vector<Point2d>& match2,  Mat& rvec_, Mat& tvec_, 
 double& distance){
 
     bool PnP_flag;
     vector<Point2d> reproject_point;
+    try{
     PnP_flag = solvePnP(match1, match2, INTRINSIC, distCoeffs, rvec_, tvec_);
+    }
+    catch(const cv::Exception& e){
+        PnP_flag = false;
+    }
+
 
     if(PnP_flag){
         projectPoints(match1, rvec_, tvec_, INTRINSIC, distCoeffs, reproject_point);
         distance = double_vector_dist_sum(match2, reproject_point);
+    }
+    else{
+        distance = 10000.0;
+    }
+}
+
+void Geo_Proc::Distance_from_Prev_Frame(Mat& rvec_, Mat& tvec_, double& distance){
+    double dist1 = Dist_of_Rotation(rvec_, rvec);
+    double dist2 = Dist_of_Translation(tvec_, tvec);
+    distance = dist1 + dist2;
+}
+
+
+int Geo_Proc::Distance_from_Error_Frame(Mat& rvec_, Mat& tvec_){
+    double dist1 = Dist_of_Rotation(rvec_, e_rvec);
+    double dist2 = Dist_of_Translation(tvec_, e_tvec);
+    int dist = (int)(dist1 + dist2);
+    if(dist>= 10 && dist<=80)
+        return (int)(dist1 + dist2);
+    else if(dist < 10)
+        return 20;
+    else
+        return 80;
+}
+
+bool Geo_Proc::Error_Comparison_with_Prev_Frame(Mat& in_rvec, Mat& in_tvec, double& distance){
+    int error_thres = 60;   // 파라미터
+    int average_dist = 35;
+    //return true;
+    if( error_thres + cum <= (int)(distance)){
+        if(e_num < 3){
+            if(e_num == 0)
+                cum += average_dist;
+            else
+                cum += Distance_from_Error_Frame(in_rvec, in_tvec);
+            
+            e_rvec = in_rvec;
+            e_tvec = in_tvec;
+            in_rvec = rvec;    // 오류가 일어난 포즈 대신 이전레임 포즈 저장.
+            in_tvec = tvec;
+            e_num++;
+            return true;
+        }
+        else{
+            cum += Distance_from_Error_Frame(in_rvec, in_tvec);
+            e_rvec = in_rvec;
+            e_tvec = in_tvec;
+            e_num++;
+            return false;
+        }
+
+    }
+    else if( 10 > (int)(distance)){
+        e_num = 0;
+        cum = 0;
+        in_rvec = rvec;    
+        in_tvec = tvec;
         return true;
     }
     else{
-        distance = numeric_limits<double>::max();
-        return false;
+        e_num = 0;
+        cum = 0;
+        return true;
     }
+
+    
+
 }
 
 
@@ -235,29 +298,15 @@ void Geo_Proc::Draw_Object(Mat& img){
     // 코너 그대로 사영시키기
     projectPoints(world_table_outside_corners, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
 
-    for(int i=0; i<4; i++){
-        circle(img, Point(img_corners[i].x, img_corners[i].y), 5, Scalar(0, 0, i*80), 2, 8, 0);
-    }
+
     for(int i=0; i<4; i++){
         circle(img, Point(object_img_pt[i].x, object_img_pt[i].y), 10, Scalar(0, i*80, i*80), 2, 8, 0);
     }
-
-
-
-
     // 안쪽 테두리 표시
-
-
     projectPoints(world_table_inside_corners_d, rvec, tvec, INTRINSIC, distCoeffs, object_img_pt);
 
     for(int i=0; i<4; i++){
         line(img, object_img_pt[i%4], object_img_pt[(i+1)%4], Scalar(0,255,255), 2);
     }
 
-}
-
-
-
-void Geo_Proc::Clear_prev_frame_info(){
-    img_corners.clear();
 }

@@ -79,7 +79,7 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
     //Canny(Big_blob, edge, 10, 200);
 
     vector<Vec2f> lines;
-	HoughLines(edge, lines, 1, CV_PI / 180, 80);     /** 중요 파라미터 **/
+	HoughLines(edge, lines, 1, CV_PI / 180, 70);     /** 중요 파라미터 **/
 	
 
     std::vector<cv::Vec2f>::const_iterator it= lines.begin();
@@ -136,47 +136,6 @@ void Detect_Billiard_Edge(Mat& Big_blob, Point2i& Big_blob_center, vector<Vec4f>
     }
 
     Candidate_lines = candidate_lines_info;  // 내적이 필요 없다면 수정
-
-
-         Mat result;
-    Big_blob.copyTo(result);
-    Scalar color(125);
-
-    vector<cv::Vec4f>::const_iterator iter = Candidate_lines.begin();
-
-	while (iter != Candidate_lines.end()) {
-
-		float rho= (*iter)[0];   // first element is distance rho
-		float theta= (*iter)[1]; // second element is angle theta
-		
-		if (theta < CV_PI/4. || theta > 3.*CV_PI/4.) { // ~vertical line
-		
-			// point of intersection of the line with first row
-			cv::Point pt1(rho/cos(theta),0);        
-			// point of intersection of the line with last row
-			cv::Point pt2((rho-result.rows*sin(theta))/cos(theta),result.rows);
-			// draw a white line
-			cv::line( result, pt1, pt2, color, 3); 
-
-		} else { // ~horizontal line
-
-			// point of intersection of the line with first column
-			cv::Point pt1(0,rho/sin(theta));        
-			// point of intersection of the line with last column
-			cv::Point pt2(result.cols,(rho-result.cols*cos(theta))/sin(theta));
-			// draw a white line
-			cv::line( result, pt1, pt2, color, 3); 
-		}
-
-		//std::cout << "line: (" << rho << "," << theta << ")\n"; 
-
-
-		++iter;
-	}
-
-
-    //imshow("result", result);
-
 }
 
 void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_blob_center,vector<Point2i>& corners){
@@ -446,14 +405,4 @@ void Calculation_Billiard_Corner(vector<Vec4f>& Candidate_lines, Point2i& Big_bl
         return; // there are no lines
     }
 
-    /*
-    int size = corners.size();
-    cout<<size<<endl;
-    for(int i=0; i<size ;i++){
-        circle(border, Point(corners[i].x+H_Size, corners[i].y+H_Size), 150, Scalar(0, 255, 0), 2, 8, 0);
-    }
-    imshow("img", border);
-    
-    waitKey(0);
-    */
 }
