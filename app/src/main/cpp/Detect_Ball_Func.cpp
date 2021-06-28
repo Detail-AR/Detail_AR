@@ -40,9 +40,7 @@ void Detect_ball_color(Mat& img_hsv, Mat* output_array){
 
     output_array[0] = Red_mask;
     output_array[1] = Yellow_mask;
-    output_array[2] = White_mask;
-
-    
+    output_array[2] = White_mask; 
 }
 
 
@@ -51,6 +49,7 @@ void Detect_ball_color(Mat& img_hsv, Mat* output_array){
 void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candidate, vector<vector<Vec3i>>& label_with_color){
     label_with_color.resize(4);  // 공은 반드시 4개 이하이다.
     ball_candidate.resize(4, Mat());
+
 
     vector<pair<int,int>> find_best_color_area;
     int total;
@@ -68,9 +67,6 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
     vector<pair<int,int>> FBFL; // Find_Best_Four_Label // 공은 반드시 4개이다.
     for (int j = 1; j < numOfLables; j++) { 
         int* label = stats.ptr<int>(j);
-
-
-
         int wid = label[2];
         int hei = label[3];
         int area = label[4];
@@ -86,9 +82,8 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
         if(ratio2 < 0.3)
             continue;
         
-    
         // ********* 특정 픽셀 비율 이하면 공이라고 판단 안하고 건너 띈다!! **************
-        if(area < 100)
+        if(area < 60)
             continue;
 
         FBFL.push_back(make_pair(area, j));
@@ -141,21 +136,21 @@ void Match_ball_and_color(Mat* ball_colors, Mat& hole, vector<Mat>& ball_candida
 
         float color_ratio = (float)best_color_area/ball_candi_area;
 
-        if(color_ratio > 0.2){ // 파라미터 ******
+        if(color_ratio > 0.01){ // 파라미터 ******
             second_color_ratio = (float)(find_best_color_area[1].first) / best_color_area;
             third_color_ratio = (float)(find_best_color_area[2].first) / best_color_area;
 
 
             bool flag = false; // 겹쳤는가?
 
-            if(second_color_ratio > 0.4){  // 다음으로 우세한 컬러의 인덱스와 중심을 계산한다
+            if(second_color_ratio > 0.5){  // 다음으로 우세한 컬러의 인덱스와 중심을 계산한다
                 color_index = find_best_color_area[1].second;
 
                 Find_one_blob_center( what_color[color_index], one_blob_center);
                 label_with_color[i].push_back(Vec3i(color_index, one_blob_center.x, one_blob_center.y));
                 flag = true;
             }
-            if(third_color_ratio > 0.4 ){
+            if(third_color_ratio > 0.5 ){
                 color_index = find_best_color_area[2].second;
 
                 Find_one_blob_center( what_color[color_index], one_blob_center);
