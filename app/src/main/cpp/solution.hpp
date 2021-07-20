@@ -3,8 +3,7 @@
 
 #include "basic.h"
 
-class Ball
-{
+class Ball{
 public:
     Point2d locate;
     Point2d speed;
@@ -16,92 +15,84 @@ public:
     bool c2 = false;
     bool c3 = false;
 
-    Ball() {}
-    Ball(Point2d l, Point2d s, int c)
-    {
+    Ball(){}
+    Ball(Point2d l, Point2d s, int c){
         locate = l;
         speed = s;
         color = c;
     }
 
-    ~Ball() {}
+    ~Ball(){}
 
-    void move()
-    {
-        if (speed.x == 0.0 and speed.y == 0.0)
-            return;
+    void move(){
+        if(speed.x == 0.0 and speed.y == 0.0) return;
+        if(isnan(speed.x) or isnan(speed.y)){
+            speed.x = speed.y = 0;
+        }
         locate.x += speed.x;
         locate.y += speed.y;
 
         // x direct
-        if (locate.x <= 33)
-        {
+        if(locate.x <= 33){
             locate.x = 33;
-            speed.x = -speed.x;
-        }
-        else if (locate.x >= 2415)
-        {
+            speed.x = -speed.x * 0.987;
+        }else if(locate.x >= 2415){
             locate.x = 2415;
-            speed.x = -speed.x;
+            speed.x = -speed.x * 0.987;
         }
         // y direct
-        if (locate.y <= 33)
-        {
+        if(locate.y <= 33){
             locate.y = 33;
-            speed.y = -speed.y;
-        }
-        else if (locate.y >= 1191)
-        {
+            speed.y = -speed.y * 0.987;
+        }else if(locate.y >= 1191){
             locate.y = 1191;
-            speed.y = -speed.y;
+            speed.y = -speed.y * 0.987;
         }
 
         // speed Down
-        speed.x *= 0.96;
-        speed.y *= 0.96;
+        speed.x *= 0.987;
+        speed.y *= 0.987;
 
-        if (abs(speed.x) < 0.14 and abs(speed.y) < 0.14)
-        {
+        if(abs(speed.x)<0.14 and abs(speed.y)<0.14) {
             speed.x = speed.y = 0.0;
         }
 
+
         // Check Collision
-        if (checkCollision(other1))
-            c1 = true;
-        if (checkCollision(other2))
-            c2 = true;
-        if (checkCollision(other3))
-            c3 = true;
+        if(checkCollision(other1)) c1 = true;
+        if(checkCollision(other2)) c2 = true;
+        if(checkCollision(other3)) c3 = true;
     }
 
-    bool checkCollision(Ball *other)
-    {
+    bool checkCollision(Ball *other){
         double dx = this->locate.x - other->locate.x;
         double dy = this->locate.y - other->locate.y;
 
         // Collision2
-        if ((dx * dx) + (dy * dy) <= (66 * 66))
-        {
+        if((dx * dx) + (dy*dy) <= (66*66)){
             Point2d otherCenter = other->locate;
             Point2d nowCenter = this->locate;
 
             /* other dir */
-            Point2d *dir = new Point2d(otherCenter.x - nowCenter.x, otherCenter.y - nowCenter.y);
+            Point2d* dir = new Point2d(otherCenter.x - nowCenter.x, otherCenter.y - nowCenter.y);
             double length = sqrt((dir->x * dir->x) + (dir->y * dir->y));
-            if (length < 1)
-                length = 1;
-            Point2d *dirVector = new Point2d(dir->x / length, dir->y / length); // normailize vector
+//            if(length < 1) length = 1;
+            Point2d* dirVector = new Point2d(dir->x / length, dir->y / length); // normailize vector
+            if(dirVector->x < 1) dirVector->x = 1;
+            if(dirVector->y < 1) dirVector->y = 1;
 
             Point2d moveVector(this->speed.x, this->speed.y);
             double dv = (dirVector->x * moveVector.x) + (dirVector->y * moveVector.y); // dot product for scalar
-            Point2d *otherDirVector = new Point2d(dirVector->x * dv, dirVector->y * dv);
+            Point2d* otherDirVector = new Point2d(dirVector->x * dv, dirVector->y * dv);
             other->speed.x += otherDirVector->x;
             other->speed.y += otherDirVector->y;
 
             /* now dir */
-            Point2d *nowDirVector = new Point2d(moveVector.x - otherDirVector->x, moveVector.y - otherDirVector->y);
-            this->speed.x += nowDirVector->x;
-            this->speed.y += nowDirVector->y;
+            Point2d* nowDirVector = new Point2d(moveVector.x - otherDirVector->x, moveVector.y - otherDirVector->y);
+            this->speed.x += nowDirVector->x * 0.95;
+            this->speed.y += nowDirVector->y * 0.95;
+//            this->speed.x = nowDirVector->x * 0.95;
+//            this->speed.y = nowDirVector->y * 0.95;
 
             delete dir;
             delete dirVector;
@@ -113,61 +104,88 @@ public:
         return false;
     }
 
-    void paint(Mat &templateA)
-    {
-        if (color == 0)
-        {
+    void paint(Mat &templateA){
+        if(color == 0){
             circle(templateA, Point(locate.x, locate.y), 33, Scalar(255, 255, 255), 2, 8, 0);
-        }
-        else if (color == 1)
-        {
+        }else if(color == 1){
             circle(templateA, Point(locate.x, locate.y), 33, Scalar(0, 255, 255), 2, 8, 0);
-        }
-        else if (color == 2)
-        {
+        }else if(color == 2){
             circle(templateA, Point(locate.x, locate.y), 33, Scalar(0, 0, 255), 2, 8, 0);
         }
     }
 
-    void setCollisionDefault()
-    {
-        c1 = false;
-        c2 = false;
-        c3 = false;
-    }
-
-    void setDefault()
-    {
-        locate.x = 0;
-        locate.y = 0;
-        speed.x = 0;
-        speed.y = 0;
+    void setDefault(){
+        locate.x = 0; locate.y = 0;
+        speed.x = 0; speed.y = 0;
         color = -1;
-        c1 = false;
-        c2 = false;
-        c3 = false;
+        c1 = false; c2 = false; c3 = false;
     }
 
-    void setSpeed(Point2d a)
-    {
-        this->speed.x = a.x;
-        this->speed.y = a.y;
+    void setSpeed(Point2d s){
+        this->speed.x = s.x;
+        this->speed.y = s.y;
     }
 
-    void setLocate(Point2d a)
-    {
-        this->locate.x = a.x;
-        this->locate.y = a.y;
+    void setLocate(Point2d l){
+        this->locate.x = l.x;
+        this->locate.y = l.y;
     }
 
-    bool isValidCollision()
-    {
-        if (c1 and c2 and !c3)
-        {
+    bool isValidCollision(){
+        if(c1 and c2 and !c3){
             return true;
         }
         return false;
     }
+
+    int isCollisionMove(){
+        int collision = -1; // -1 : no, 0 : red1, 1 : red2, 2 : Yellow 3: wall
+        if(speed.x == 0.0 and speed.y == 0.0) return -1;;
+        if(isnan(speed.x) or isnan(speed.y)){
+            speed.x = speed.y = 0;
+            return -1;
+        }
+        locate.x += speed.x;
+        locate.y += speed.y;
+
+        // x direct
+        if(locate.x <= 33){
+            locate.x = 33;
+            speed.x = -speed.x * 0.987;
+            collision = 3;
+        }else if(locate.x >= 2415){
+            locate.x = 2415;
+            speed.x = -speed.x * 0.987;
+            collision = 3;
+        }
+        // y direct
+        if(locate.y <= 33){
+            locate.y = 33;
+            speed.y = -speed.y * 0.987;
+            collision = 3;
+        }else if(locate.y >= 1191){
+            locate.y = 1191;
+            speed.y = -speed.y * 0.987;
+            collision = 3;
+        }
+
+        // speed Down
+        speed.x *= 0.987;
+        speed.y *= 0.987;
+
+        if(abs(speed.x)<0.14 and abs(speed.y)<0.14) {
+            speed.x = speed.y = 0.0;
+        }
+
+
+        // Check Collision
+        if(checkCollision(other1)) { c1 = true; collision = 0; }
+        if(checkCollision(other2)) { c2 = true; collision = 1; }
+        if(checkCollision(other3)) { c3 = true; collision = 2; }
+
+        return collision;
+    }
+
 };
 
 #endif /* Solution_hpp */
