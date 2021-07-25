@@ -160,6 +160,6 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
 
 //    imshow("templateA", templateA);
     
-    waitKey();
+//    waitKey();
     
 }
