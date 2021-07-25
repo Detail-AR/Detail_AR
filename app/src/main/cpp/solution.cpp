@@ -148,7 +148,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
 
     if(list.size() != 0){
         cout << list.size();
-        for(Point2d point : list[5]){
+        for(Point2d point : list[0]){
             cout << point << '\n';
             White.setLocate(point);
             White.paint(bTemplate);
