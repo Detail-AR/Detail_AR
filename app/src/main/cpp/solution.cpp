@@ -25,27 +25,29 @@ bool isMoveFinish(Ball &Red, Ball &Red2, Ball &Yellow, Ball &White){
 vector<Point2d> findPath(Ball Red, Ball Red2, Ball Yellow, Ball White){
     vector<Point2d> ret;
     while(White.speed.x != 0.0){
-        White.move();
+//        White.move();
         if(White.isCollisionMove() != -1){
             ret.push_back(White.locate);
         }
-//        Red.move();
-//        Red2.move();
-//        Yellow.move();
+        Red.move();
+        Red2.move();
+        Yellow.move();
 
-        if(White.isValidCollision()) return ret;
+        if(White.isValidCollision()){
+            return ret;
+        }
     }
 
-    return ret;
+    return {Point2d(-1,-1)};
 }
 
 // 공을 움직여라
 void updateBall(Ball &Red, Ball &Red2, Ball &Yellow, Ball &White){
     while(White.speed.x != 0.0){
         White.move();
-//        Red.move();
-//        Red2.move();
-//        Yellow.move();
+        Red.move();
+        Red2.move();
+        Yellow.move();
     }
 }
 
@@ -76,26 +78,42 @@ vector<Point2d> toUniquePath(vector<Point2d> paths){
     return ret;
 }
 
-void foo()
+void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref)
 {
-    Ball Red = Ball(Point2d(100, 100), Point2d(0, 0), 2);
-    Ball Red2 = Ball(Point2d(300, 200), Point2d(0, 0), 2);
-    Ball Yellow = Ball(Point2d(1111, 300), Point2d(0, 0), 1);
-    Ball White = Ball(Point2d(500, 300), Point2d(0, 0), 0);
+    Ball Red, Red2, Yellow, White;
+    bool redFlag = false;
+    for(int i=0; i<4; i++){
+        if(ball_color_ref[i] == 0){
+            if(!redFlag){
+                redFlag = true;
+                Red = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 0);
+            }else{
+                Red2 = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 0);
+            }
+        }else if(ball_color_ref[i] == 1){
+            Yellow = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 1);
+        }else if(ball_color_ref[i] == 2){
+            White = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 2);
+        }
+    }
+//    Ball Red = Ball(Point2d(150, 150), Point2d(0, 0), 2);
+//    Ball Red2 = Ball(Point2d(300, 300), Point2d(0, 0), 2);
+//    Ball Yellow = Ball(Point2d(1111, 300), Point2d(0, 0), 1);
+//    Ball White = Ball(Point2d(600, 300), Point2d(0, 0), 0);
     Point2d past = White.locate;
 
     makeAdj(Red, Red2, Yellow, White);
 
-    Mat templateA = Mat(1224,2448, CV_8UC3, Scalar(255,0,0));
-    Red.paint(templateA);
-    Red2.paint(templateA);
-    Yellow.paint(templateA);
-    White.paint(templateA);
+//    Mat templateA = Mat(1224,2448, CV_8UC3, Scalar(255,0,0));
+//    Red.paint(templateA);
+//    Red2.paint(templateA);
+//    Yellow.paint(templateA);
+//    White.paint(templateA);
 
     vector<Point2d> tempSpeedList;
 
-    for(int dx=-100; dx<=100; dx++){
-        for(int dy=-100; dy<=100; dy++){
+    for(double dx=-80; dx<=80; dx+=0.5){
+        for(double dy=-80; dy<=80; dy+=0.5){
             // 1사분면 ~ 4사분면 Screen 좌표계 (화이트가 0,0 가정)
             Ball redTemp = Ball(Point2d(Red.locate), Point2d(Red.speed), 2);
             Ball redTemp2 = Ball(Point2d(Red2.locate), Point2d(Red2.speed), 2);
@@ -107,31 +125,40 @@ void foo()
             if(whiteTemp.isValidCollision()) tempSpeedList.push_back(Point2d(dx, dy));
         }
     }
-
     sort(tempSpeedList.begin(), tempSpeedList.end(), cmp);
 
     vector<Point2d> validSpeedList;
-    for(int i=0; i<5; i++){
-        validSpeedList.push_back(Point2d(tempSpeedList[i].x, tempSpeedList[i].y));
-    }
-
-    vector<Point2d> list[5];
-    for(int i=0; i<5; i++){
+    for(auto speeds : tempSpeedList){
         White.setLocate(past);
-        White.setSpeed(validSpeedList[i]);
-        list[i] = findPath(Red, Red2, Yellow, White);
-        list[i] = toUniquePath(list[i]);
+        White.setSpeed(speeds);
+        auto paths = findPath(Red, Red2, Yellow, White);
+        if(paths[0].x == -1 and paths[0].y == -1) continue;
+        if(paths.size() == 3){
+            validSpeedList.push_back(speeds);
+        }
     }
 
-    for(Point2d point : list[0]){
-        cout << point << '\n';
-        White.setLocate(point);
-        White.paint(templateA);
-        arrowedLine(templateA, past, point, Scalar(0, 255, 0), 3);
-        past = point;
+    vector<vector<Point2d>> list;
+    for(auto speeds : validSpeedList){
+        White.setLocate(past);
+        White.setSpeed(speeds);
+        list.push_back(findPath(Red, Red2, Yellow, White));
+//        list[i] = toUniquePath(list[i]);
     }
 
-    imshow("templateA", templateA);
+    if(list.size() != 0){
+        cout << list.size();
+        for(Point2d point : list[5]){
+            cout << point << '\n';
+            White.setLocate(point);
+            White.paint(bTemplate);
+            arrowedLine(bTemplate, past, point, Scalar(0, 255, 0), 3);
+            past = point;
+        }
+    }
+
+
+//    imshow("templateA", templateA);
     
     waitKey();
     

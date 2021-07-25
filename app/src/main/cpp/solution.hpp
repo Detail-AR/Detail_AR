@@ -67,32 +67,54 @@ public:
     bool checkCollision(Ball *other){
         double dx = this->locate.x - other->locate.x;
         double dy = this->locate.y - other->locate.y;
+        double dLen = (dx * dx) + (dy * dy);
 
         // Collision2
-        if((dx * dx) + (dy*dy) <= (66*66)){
+        if(dLen <= (66*66)){
+            while(66*66 - dLen >= 0.01){
+                if(this->speed.x == 0 and this->speed.y == 0) break;
+                this->locate.x -= this->speed.x * 0.1;
+                this->locate.y -= this->speed.y * 0.1;
+
+                dx = this->locate.x - other->locate.x;
+                dy = this->locate.y - other->locate.y;
+                dLen = (dx * dx) + (dy * dy);
+            }
             Point2d otherCenter = other->locate;
             Point2d nowCenter = this->locate;
+
 
             /* other dir */
             Point2d* dir = new Point2d(otherCenter.x - nowCenter.x, otherCenter.y - nowCenter.y);
             double length = sqrt((dir->x * dir->x) + (dir->y * dir->y));
-//            if(length < 1) length = 1;
+            if(length == 0) length = 1;
             Point2d* dirVector = new Point2d(dir->x / length, dir->y / length); // normailize vector
-            if(dirVector->x < 1) dirVector->x = 1;
-            if(dirVector->y < 1) dirVector->y = 1;
 
             Point2d moveVector(this->speed.x, this->speed.y);
             double dv = (dirVector->x * moveVector.x) + (dirVector->y * moveVector.y); // dot product for scalar
             Point2d* otherDirVector = new Point2d(dirVector->x * dv, dirVector->y * dv);
-            other->speed.x += otherDirVector->x;
-            other->speed.y += otherDirVector->y;
+//            other->speed.x = otherDirVector->x;
+//            other->speed.y = otherDirVector->y;
 
             /* now dir */
             Point2d* nowDirVector = new Point2d(moveVector.x - otherDirVector->x, moveVector.y - otherDirVector->y);
-            this->speed.x += nowDirVector->x * 0.95;
-            this->speed.y += nowDirVector->y * 0.95;
-//            this->speed.x = nowDirVector->x * 0.95;
-//            this->speed.y = nowDirVector->y * 0.95;
+            this->speed.x = nowDirVector->x;
+            this->speed.y = nowDirVector->y;
+
+            if(abs(speed.x) < 0.14 and abs(speed.y) < 0.14){
+                speed.x = 0;
+                speed.y = 0;
+            }
+
+//            while(dLen <= 66*67 and (this->speed.x != 0 and this->speed.y != 0)){
+//                this->locate.x += this->speed.x;
+//                this->locate.y += this->speed.y;
+//
+////                cout << locate << " " << speed << '\n';
+//                dx = this->locate.x - other->locate.x;
+//                dy = this->locate.y - other->locate.y;
+//                dLen = (dx * dx) + (dy * dy);
+//            }
 
             delete dir;
             delete dirVector;
