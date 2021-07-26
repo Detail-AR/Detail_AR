@@ -41,6 +41,7 @@ void Detect_ball_color(Mat& img_hsv, Mat* output_array){
     output_array[0] = Red_mask;
     output_array[1] = Yellow_mask;
     output_array[2] = White_mask; 
+
 }
 
 

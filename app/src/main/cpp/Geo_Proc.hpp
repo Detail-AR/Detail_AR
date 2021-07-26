@@ -62,6 +62,7 @@ class Geo_Proc
     void Distance_from_Prev_Frame(Mat& rvec_, Mat& tvec_, double& distance);
     int Distance_from_Error_Frame(Mat& rvec_, Mat& tvec_);
         
+    Mat& GetTemplete(void);
     void Draw_Obj_on_Templete();
     void Draw_3D_Templete_on_Img(Mat& img);
 

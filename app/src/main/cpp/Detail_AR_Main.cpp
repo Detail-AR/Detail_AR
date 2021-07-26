@@ -45,12 +45,11 @@ void Detail_AR_Main(Mat& input, Mat& output){
             if(Corners_num == 4 && Balls_num >= 4){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
                 can_find_pose = geo_proc.Find_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen, true);
                            
-                //if can_fidnd_pose is true;  false -> continue;
-
-                // here, we need solution class --->>   input: wor_ball_cen, ball_color_ref  output: solution arrow.
+                geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
+                Mat templete = geo_proc.GetTemplete();
+                BilliardSollution(templete, balls_center, ball_color_ref);
 
                 if(can_find_pose != -1){
-                    geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                     geo_proc.Draw_3D_Templete_on_Img(img);
                     find_ball_loc = true;
                 }

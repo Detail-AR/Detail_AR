@@ -132,7 +132,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         White.setLocate(past);
         White.setSpeed(speeds);
         auto paths = findPath(Red, Red2, Yellow, White);
-        if(paths[0].x == -1 and paths[0].y == -1) continue;
+        if(paths[0].x == -1 && paths[0].y == -1) continue;
         if(paths.size() == 3){
             validSpeedList.push_back(speeds);
         }
