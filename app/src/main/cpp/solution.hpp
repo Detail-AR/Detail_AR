@@ -25,8 +25,8 @@ public:
     ~Ball(){}
 
     void move(){
-        if(speed.x == 0.0 and speed.y == 0.0) return;
-        if(isnan(speed.x) or isnan(speed.y)){
+        if(speed.x == 0.0 && speed.y == 0.0) return;
+        if(isnan(speed.x) || isnan(speed.y)){
             speed.x = speed.y = 0;
         }
         locate.x += speed.x;
@@ -53,7 +53,7 @@ public:
         speed.x *= 0.987;
         speed.y *= 0.987;
 
-        if(abs(speed.x)<0.14 and abs(speed.y)<0.14) {
+        if(abs(speed.x)<0.14 && abs(speed.y)<0.14) {
             speed.x = speed.y = 0.0;
         }
 
@@ -72,7 +72,7 @@ public:
         // Collision2
         if(dLen <= (66*66)){
             while(66*66 - dLen >= 0.01){
-                if(this->speed.x == 0 and this->speed.y == 0) break;
+                if(this->speed.x == 0 && this->speed.y == 0) break;
                 this->locate.x -= this->speed.x * 0.1;
                 this->locate.y -= this->speed.y * 0.1;
 
@@ -101,7 +101,7 @@ public:
             this->speed.x = nowDirVector->x;
             this->speed.y = nowDirVector->y;
 
-            if(abs(speed.x) < 0.14 and abs(speed.y) < 0.14){
+            if(abs(speed.x) < 0.14 && abs(speed.y) < 0.14){
                 speed.x = 0;
                 speed.y = 0;
             }
@@ -154,7 +154,7 @@ public:
     }
 
     bool isValidCollision(){
-        if(c1 and c2 and !c3){
+        if(c1 && c2 && !c3){
             return true;
         }
         return false;
@@ -162,8 +162,8 @@ public:
 
     int isCollisionMove(){
         int collision = -1; // -1 : no, 0 : red1, 1 : red2, 2 : Yellow 3: wall
-        if(speed.x == 0.0 and speed.y == 0.0) return -1;;
-        if(isnan(speed.x) or isnan(speed.y)){
+        if(speed.x == 0.0 && speed.y == 0.0) return -1;;
+        if(isnan(speed.x) || isnan(speed.y)){
             speed.x = speed.y = 0;
             return -1;
         }
@@ -195,7 +195,7 @@ public:
         speed.x *= 0.987;
         speed.y *= 0.987;
 
-        if(abs(speed.x)<0.14 and abs(speed.y)<0.14) {
+        if(abs(speed.x)<0.14 && abs(speed.y)<0.14) {
             speed.x = speed.y = 0.0;
         }
 

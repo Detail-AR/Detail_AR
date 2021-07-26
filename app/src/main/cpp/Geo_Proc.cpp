@@ -253,6 +253,9 @@ bool Geo_Proc::Error_Comparison_with_Prev_Frame(Mat& in_rvec, Mat& in_tvec, doub
 
 }
 
+Mat& Geo_Proc::GetTemplete(void){
+    return Ball_and_Sol_templete;
+}
 
 void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
 
