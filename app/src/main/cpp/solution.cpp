@@ -86,29 +86,19 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         if(ball_color_ref[i] == 0){
             if(!redFlag){
                 redFlag = true;
-                Red = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 0);
+                Red = Ball(Point2d(balls_center[i].y, balls_center[i].x), Point2d(0, 0), 0);
             }else{
-                Red2 = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 0);
+                Red2 = Ball(Point2d(balls_center[i].y, balls_center[i].x), Point2d(0, 0), 0);
             }
         }else if(ball_color_ref[i] == 1){
-            Yellow = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 1);
+            Yellow = Ball(Point2d(balls_center[i].y, balls_center[i].x), Point2d(0, 0), 1);
         }else if(ball_color_ref[i] == 2){
-            White = Ball(Point2d(balls_center[i].x, balls_center[i].y), Point2d(0, 0), 2);
+            White = Ball(Point2d(balls_center[i].y, balls_center[i].x), Point2d(0, 0), 2);
         }
     }
-//    Ball Red = Ball(Point2d(150, 150), Point2d(0, 0), 2);
-//    Ball Red2 = Ball(Point2d(300, 300), Point2d(0, 0), 2);
-//    Ball Yellow = Ball(Point2d(1111, 300), Point2d(0, 0), 1);
-//    Ball White = Ball(Point2d(600, 300), Point2d(0, 0), 0);
     Point2d past = White.locate;
 
     makeAdj(Red, Red2, Yellow, White);
-
-//    Mat templateA = Mat(1224,2448, CV_8UC3, Scalar(255,0,0));
-//    Red.paint(templateA);
-//    Red2.paint(templateA);
-//    Yellow.paint(templateA);
-//    White.paint(templateA);
 
     vector<Point2d> tempSpeedList;
 
@@ -137,7 +127,6 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
             validSpeedList.push_back(speeds);
         }
     }
-
     vector<vector<Point2d>> list;
     for(auto speeds : validSpeedList){
         White.setLocate(past);
@@ -145,21 +134,20 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         list.push_back(findPath(Red, Red2, Yellow, White));
 //        list[i] = toUniquePath(list[i]);
     }
-
+    Ball Green = Ball(Point2d(437, 1486), Point2d(0, 0), 1);
+    Green.paint(bTemplate);
     if(list.size() != 0){
-        cout << list.size();
-        for(Point2d point : list[0]){
-            cout << point << '\n';
-            White.setLocate(point);
+        for(Point2d point : list[4]){
+            White.setLocate(Point2d(point.y, point.x));
             White.paint(bTemplate);
-            arrowedLine(bTemplate, past, point, Scalar(0, 255, 0), 3);
+            arrowedLine(bTemplate, Point2d(past.y, past.x), Point2d(point.y, point.x), Scalar(0, 255, 0), 3);
             past = point;
         }
     }
 
 
 //    imshow("templateA", templateA);
-    
+
 //    waitKey();
-    
+
 }
