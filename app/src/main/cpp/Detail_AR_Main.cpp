@@ -47,7 +47,7 @@ void Detail_AR_Main(Mat& input, Mat& output){
                            
                 geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                 Mat templete = geo_proc.GetTemplete();
-                BilliardSollution(templete, balls_center, ball_color_ref);
+                BilliardSollution(templete, wor_ball_cen, ball_color_ref);
 
                 if(can_find_pose != -1){
                     geo_proc.Draw_3D_Templete_on_Img(img);
