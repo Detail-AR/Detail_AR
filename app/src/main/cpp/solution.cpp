@@ -115,7 +115,6 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
             if(whiteTemp.isValidCollision()) tempSpeedList.push_back(Point2d(dx, dy));
         }
     }
-    sort(tempSpeedList.begin(), tempSpeedList.end(), cmp);
 
     vector<Point2d> validSpeedList;
     for(auto speeds : tempSpeedList){
@@ -127,6 +126,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
             validSpeedList.push_back(speeds);
         }
     }
+    sort(validSpeedList.begin(), validSpeedList.end(), cmp);
     vector<vector<Point2d>> list;
     for(auto speeds : validSpeedList){
         White.setLocate(past);
@@ -134,8 +134,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         list.push_back(findPath(Red, Red2, Yellow, White));
 //        list[i] = toUniquePath(list[i]);
     }
-    Ball Green = Ball(Point2d(437, 1486), Point2d(0, 0), 1);
-    Green.paint(bTemplate);
+
     if(list.size() != 0){
         for(Point2d point : list[4]){
             White.setLocate(Point2d(point.y, point.x));
