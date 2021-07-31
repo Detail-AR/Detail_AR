@@ -78,6 +78,39 @@ vector<Point2d> toUniquePath(vector<Point2d> paths){
     return ret;
 }
 
+vector<pair<int, int>> setError(Ball &Red, Ball &Red2, Ball &Yellow, Ball &White){
+    vector<Ball> Balls(4);
+    Balls[0] = Red; Balls[1] = Red2; Balls[2] = Yellow; Balls[3] = White;
+
+    vector<pair<int, int>> list;
+    for(Ball ball : Balls){
+        int xError = 0, yError = 0;
+        if(ball.locate.x < 33) xError = 33 - ball.locate.x;
+        if(ball.locate.x > 2415) xError = 2415 - ball.locate.x;
+        if(ball.locate.y < 33) yError = 33 - ball.locate.y;
+        if(ball.locate.y > 1191) yError = 1191 - ball.locate.y;
+        list.push_back({xError, yError});
+    }
+    if(list[0].first != 0 || list[0].second != 0)
+        Red.setLocate(Point2d(Red.locate.x + list[0].first, Red.locate.y + list[0].second));
+    if(list[1].first != 0 || list[1].second != 0)
+        Red2.setLocate(Point2d(Red2.locate.x + list[1].first, Red2.locate.y + list[1].second));
+    if(list[2].first != 0 || list[2].second != 0)
+        Yellow.setLocate(Point2d(Yellow.locate.x + list[2].first, Yellow.locate.y + list[2].second));
+    if(list[3].first != 0 || list[3].second != 0)
+        White.setLocate(Point2d(White.locate.x + list[3].first, White.locate.y + list[3].second));
+    return list;
+}
+
+bool isRedCollision(Point2d point, Ball &Red){
+    int sum = 0;
+    sum += abs(point.x - Red.locate.x);
+    sum += abs(point.y - Red.locate.y);
+
+    if(sum > 95) return false;
+    return true;
+}
+
 void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref)
 {
     Ball Red, Red2, Yellow, White;
@@ -98,6 +131,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
     }
     Point2d past = White.locate;
 
+    vector<pair<int, int>> errorList = setError(Red, Red2, Yellow, White);
     makeAdj(Red, Red2, Yellow, White);
 
     vector<Point2d> tempSpeedList;
@@ -134,9 +168,29 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         list.push_back(findPath(Red, Red2, Yellow, White));
 //        list[i] = toUniquePath(list[i]);
     }
-
+    Ball Green = Ball(Point2d(437, 1486), Point2d(0, 0), 1);
+    Green.paint(bTemplate);
     if(list.size() != 0){
-        for(Point2d point : list[4]){
+        for(Point2d point : list[0]){
+            if(isRedCollision(point, Red)){ // 제 1적구
+                if(errorList[0].first != 0 || errorList[0].second != 0){
+                    point.x -= errorList[0].first;
+                    point.y -= errorList[0].second;
+                }
+            }
+            else if(isRedCollision(point, Red2)){ // 제 2적구
+                if(errorList[1].first != 0 || errorList[1].second != 0){
+                    point.x -= errorList[1].first;
+                    point.y -= errorList[1].second;
+                }
+            }else{ // 벽
+                if(errorList[0].first != 0 || errorList[0].second != 0 ||
+                   errorList[1].first != 0 || errorList[1].second != 0){
+                    point.x = point.x - errorList[0].first - errorList[1].first;
+                    point.y = point.y - errorList[0].second - errorList[1].second;
+                }
+
+            }
             White.setLocate(Point2d(point.y, point.x));
             White.paint(bTemplate);
             arrowedLine(bTemplate, Point2d(past.y, past.x), Point2d(point.y, point.x), Scalar(0, 255, 0), 3);
