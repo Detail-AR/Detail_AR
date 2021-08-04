@@ -14,6 +14,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -36,9 +37,10 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
     private Mat matResult;
     private PortraitCameraView mOpenCvCameraView; // 카메라 역할
     private Size matSize;
+    private int targetColor = 1;
+    private int btnIndex = 0;
 
-    public native void FindBiliards(long matAddrInput, long matAddrResult); // native-lib에서 구현
-
+    public native int FindBiliards(long matAddrInput, long matAddrResult, int index, int color); // native-lib에서 구
 
     static {
         System.loadLibrary("opencv_java4");
@@ -86,6 +88,52 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
         mOpenCvCameraView.setMaxFrameSize(720, 480);
         mOpenCvCameraView.setMinimumHeight(480);
         mOpenCvCameraView.setMinimumWidth(720);
+
+        Button perceiveBtn = (Button)findViewById(R.id.perceive_btn);
+        perceiveBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                btnIndex = 1;
+
+                // Toast Message
+                Toast.makeText(MainActivity.this, "인식이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button cancelBtn = (Button)findViewById(R.id.cancle_btn);
+        cancelBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                btnIndex = 4;
+
+                // Toast Message
+                Toast.makeText(MainActivity.this, "리셋이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button shiftBtn = (Button)findViewById(R.id.shift_btn);
+        shiftBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                btnIndex = 3;
+
+                // Toast Message
+                Toast.makeText(MainActivity.this, "경로가 바뀌었습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button changeColorButton = (Button)findViewById(R.id.color_btn);
+        changeColorButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                btnIndex = 2;
+                if(targetColor == 1) targetColor = 2;
+                else targetColor = 1;
+
+                // Toast Message
+                Toast.makeText(MainActivity.this, "색깔이 바뀌었습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // Activitiy가 run하고 있을 때 동기화 하는 역할
@@ -141,11 +189,20 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
             matResult = new Mat(matInput.rows(), matInput.cols(), matInput.type());
 
         Mat  resizeImage = new Mat();
-        Size sz = new Size(1000, 562); // Scale up to 800x600
+        Size sz = new Size(720, 480); // Scale up to 800x600
         Imgproc.resize(matInput, resizeImage, sz);
 
-        FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr());
-
+        int nowSituation = FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr(), btnIndex, targetColor);
+        btnIndex = 0;
+        if(nowSituation == 1) {
+            // 코너인식 Toast
+            Toast.makeText(MainActivity.this, "화면에 4개의 코너가 다 나오게 해주세요.", Toast.LENGTH_SHORT).show();
+            return matInput;
+        }else if(nowSituation == 2){
+            // 인식버튼 Toast
+            Toast.makeText(MainActivity.this, "인식버튼을 눌러주세요.", Toast.LENGTH_SHORT).show();
+            return matInput;
+        }
         matSize = new Size(mOpenCvCameraView.mWidth, mOpenCvCameraView.mHeight);
         String TAG = new StringBuilder(_TAG).append("onCreateSize").toString();
 
