@@ -3,7 +3,7 @@
 #include "Geo_Proc.hpp"
 #include <android/log.h>
 
-void Detail_AR_Main(Mat& input, Mat& output){
+void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int c_situation){
 
 
     Mat img = input; // for android
@@ -40,19 +40,27 @@ void Detail_AR_Main(Mat& input, Mat& output){
 
             Corners_num = detect.Detect_Billiard_Corners(corners);
             Balls_num = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
-       
+
+            // c_situation = 1   // "4개의 코너와 모서리를 보여주세요"
+
             // 제일 처음 모든 공의 위치를 파악하기 위함.
             if(Corners_num == 4 && Balls_num >= 4){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
                 can_find_pose = geo_proc.Find_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen, true);
                            
                 geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                 Mat templete = geo_proc.GetTemplete();
-                BilliardSollution(templete, wor_ball_cen, ball_color_ref);
+                
+                //c_situation = 2  // 4개의 공, 4개의 코너 모두 인식된 상황. "인식버튼을 눌러주세요"
 
-                if(can_find_pose != -1){
-                    geo_proc.Draw_3D_Templete_on_Img(img);
-                    find_ball_loc = true;
-                }
+                //if(btn_index == 인식 버튼을 눌렀음(그 순간 참이 된다.))
+                //{
+                    BilliardSollution(templete, wor_ball_cen, ball_color_ref);
+
+                    if(can_find_pose != -1){
+                        geo_proc.Draw_3D_Templete_on_Img(img);
+                        find_ball_loc = true;
+                    }
+                //}
             }
 
         }
@@ -62,6 +70,8 @@ void Detail_AR_Main(Mat& input, Mat& output){
         //if find_ball_loc is true.
 
         if(situation == 2){
+            //c_situation = -1; // 알림창이 필요 없음
+
             Corners_num = detect.Detect_Billiard_Corners(corners);
             Balls_num = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
  
@@ -77,7 +87,10 @@ void Detail_AR_Main(Mat& input, Mat& output){
                     e_cum++;
                 }
             }
-            //geo_proc.Remove_Drawing_Info();
+            
+            
+            //if(btn_index == 취소버튼을 눌렀음(그 순간 참이된다))
+                //find_ball_loc=false;
         }
         // for debugging
 
@@ -93,9 +106,11 @@ void Detail_AR_Main(Mat& input, Mat& output){
 
         detect.Clear_prev_frame_info();
 
-        if(find_ball_loc) {
+        if(find_ball_loc)
             situation = 2;
-        }
+        else  
+            situation = 1;
+        
 
 
     output = img; // for android
