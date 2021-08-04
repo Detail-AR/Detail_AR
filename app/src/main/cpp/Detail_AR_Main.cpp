@@ -3,7 +3,7 @@
 #include "Geo_Proc.hpp"
 #include <android/log.h>
 
-void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int c_situation){
+void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int& c_situation){
 
 
     Mat img = input; // for android
