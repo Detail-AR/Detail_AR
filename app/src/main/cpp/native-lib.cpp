@@ -9,6 +9,7 @@
 #include "Geo_Proc.cpp"
 #include "Find_Cam_Pos.cpp"
 #include "solution.cpp"
+#include <android/log.h>
 
 using namespace cv;
 
@@ -47,12 +48,12 @@ JNIEXPORT void JNICALL
     // TODO: implement ConvertRGBtoGray()
     Mat &matInput = *(Mat *)mat_addr_input;
     Mat &matResult = *(Mat *)mat_addr_result;
-    int result = asd(matInput, matResult);
-    // 1
-    인식라하세욧
-    // 2
-    모서리를 보여주세
-    // 3
-    솔루션을 출력하라고 보여주
-    return result;
+//    int result = asd(matInput, matResult);
+//    // 1
+//    인식라하세욧
+//    // 2
+//    모서리를 보여주세
+//    // 3
+//    솔루션을 출력하라고 보여주
+//    return result;
 }

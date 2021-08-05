@@ -9,6 +9,8 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -37,8 +39,9 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
     private Mat matResult;
     private PortraitCameraView mOpenCvCameraView; // 카메라 역할
     private Size matSize;
-    private int targetColor = 1;
+    private int targetColor = 2; // 1 : Yellow, 2 : White
     private int btnIndex = 0;
+    private int delayTime = 0;
 
     public native int FindBiliards(long matAddrInput, long matAddrResult, int index, int color); // native-lib에서 구
 
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
                 btnIndex = 4;
 
                 // Toast Message
-                Toast.makeText(MainActivity.this, "리셋이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "리셋이 되었습니다.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -182,26 +185,45 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
         Log.i(TAG, "OpenCV CameraView Stoped");
     }
 
+    void showToastMessage(String text){
+        Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT);
+    }
+
     @Override
     public Mat onCameraFrame(PortraitCameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         matInput = inputFrame.rgba();
         if ( matResult == null )
             matResult = new Mat(matInput.rows(), matInput.cols(), matInput.type());
-
+        delayTime = (delayTime + 1) % 1234567;
         Mat  resizeImage = new Mat();
         Size sz = new Size(720, 480); // Scale up to 800x600
         Imgproc.resize(matInput, resizeImage, sz);
 
+        String TAG2 = new StringBuilder(_TAG).append("onCreate").toString();
         int nowSituation = FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr(), btnIndex, targetColor);
-        btnIndex = 0;
+        Log.i(TAG2, "nowSituation : " + nowSituation);
         if(nowSituation == 1) {
             // 코너인식 Toast
-            Toast.makeText(MainActivity.this, "화면에 4개의 코너가 다 나오게 해주세요.", Toast.LENGTH_SHORT).show();
-            return matInput;
+            if(delayTime % 60 != 0) return matInput;
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run()
+                {
+                    Toast.makeText(MainActivity.this, "4개의 모서리를 보여주세요", Toast.LENGTH_SHORT).show();
+                }
+            }, 2000);
         }else if(nowSituation == 2){
             // 인식버튼 Toast
-            Toast.makeText(MainActivity.this, "인식버튼을 눌러주세요.", Toast.LENGTH_SHORT).show();
-            return matInput;
+            if(delayTime % 60 != 0) return matInput;
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run()
+                {
+                    Toast.makeText(MainActivity.this, "인식 버튼을 눌러주세요", Toast.LENGTH_SHORT).show();
+                }
+            }, 2000);
         }
         matSize = new Size(mOpenCvCameraView.mWidth, mOpenCvCameraView.mHeight);
         String TAG = new StringBuilder(_TAG).append("onCreateSize").toString();
@@ -212,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
 
         return matResult;
     }
+
 
 
     protected List<? extends PortraitCameraBridgeViewBase> getCameraViewList() {

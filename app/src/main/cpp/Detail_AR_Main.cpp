@@ -3,6 +3,8 @@
 #include "Geo_Proc.hpp"
 #include <android/log.h>
 
+void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref, int targetColor, int btnIndex);
+
 void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int& c_situation){
 
 
@@ -30,7 +32,7 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
         int Corners_num;
         int Balls_num;
         int can_find_pose=-1;
-        bool find_ball_loc = false; 
+        static bool find_ball_loc = false;
         static int situation = 1;
         static int e_cum=0;
 
@@ -41,7 +43,7 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
             Corners_num = detect.Detect_Billiard_Corners(corners);
             Balls_num = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
 
-            // c_situation = 1   // "4개의 코너와 모서리를 보여주세요"
+             c_situation = 1;   // "4개의 코너와 모서리를 보여주세요"
 
             // 제일 처음 모든 공의 위치를 파악하기 위함.
             if(Corners_num == 4 && Balls_num >= 4){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
@@ -50,17 +52,17 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
                 geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                 Mat templete = geo_proc.GetTemplete();
                 
-                //c_situation = 2  // 4개의 공, 4개의 코너 모두 인식된 상황. "인식버튼을 눌러주세요"
+                c_situation = 2;  // 4개의 공, 4개의 코너 모두 인식된 상황. "인식버튼을 눌러주세요"
 
-                //if(btn_index == 인식 버튼을 눌렀음(그 순간 참이 된다.))
-                //{
-                    BilliardSollution(templete, wor_ball_cen, ball_color_ref);
+                if(btn_index == 1 || btn_index == 3)
+                {
+                    BilliardSollution(templete, wor_ball_cen, ball_color_ref, target_color, btn_index);
 
                     if(can_find_pose != -1){
                         geo_proc.Draw_3D_Templete_on_Img(img);
                         find_ball_loc = true;
                     }
-                //}
+                }
             }
 
         }
@@ -70,11 +72,11 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
         //if find_ball_loc is true.
 
         if(situation == 2){
-            //c_situation = -1; // 알림창이 필요 없음
+            c_situation = -1; // 알림창이 필요 없음
 
             Corners_num = detect.Detect_Billiard_Corners(corners);
             Balls_num = detect.Detect_Billirad_Balls(balls_center, ball_color_ref);
- 
+
             if(Corners_num != -1 || Balls_num != -1 ){   // 공, 코너 둘중 하나라도 감지해야함.
                 can_find_pose = geo_proc.Find_Cam_Pos(corners, balls_center, ball_color_ref);
 
@@ -89,8 +91,8 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
             }
             
             
-            //if(btn_index == 취소버튼을 눌렀음(그 순간 참이된다))
-                //find_ball_loc=false;
+            if(btn_index == 4)
+                find_ball_loc=false;
         }
         // for debugging
 
@@ -105,6 +107,11 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
         }
 
         detect.Clear_prev_frame_info();
+        __android_log_print(
+            ANDROID_LOG_INFO,
+            "SITUATION",
+            " No.1 ! : %d %d\n",
+            situation, btn_index);
 
         if(find_ball_loc)
             situation = 2;

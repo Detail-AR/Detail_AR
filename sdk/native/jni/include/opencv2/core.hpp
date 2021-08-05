@@ -1881,8 +1881,7 @@ proper comparison predicate.
 @param flags operation flags, a combination of #SortFlags
 @sa sortIdx, randShuffle
 */
-CV_EXPORTS_W void sort(
-            std::__wrap_iter<std::vector<Point_ < double>, allocator < Point_ < double>> src, OutputArray dst, int flags);
+CV_EXPORTS_W void sort(InputArray src, OutputArray dst, int flags);
 
 /** @brief Sorts each row or each column of a matrix.
 

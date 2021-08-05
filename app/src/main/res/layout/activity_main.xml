@@ -32,7 +32,7 @@
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:text="취소"
+            android:text="리셋"
             android:layout_weight="0.2"/>
 
         <Button
