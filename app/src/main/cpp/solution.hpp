@@ -128,11 +128,11 @@ public:
 
     void paint(Mat &templateA){
         if(color == 0){
-            circle(templateA, Point(locate.x, locate.y), 33, Scalar(255, 255, 255), 2, 8, 0);
+            circle(templateA, Point(locate.x, locate.y), 33, Scalar(255, 255, 255), 10, 8, 0);
         }else if(color == 1){
-            circle(templateA, Point(locate.x, locate.y), 33, Scalar(0, 255, 255), 2, 8, 0);
+            circle(templateA, Point(locate.x, locate.y), 33, Scalar(0, 255, 255), 10, 8, 0);
         }else if(color == 2){
-            circle(templateA, Point(locate.x, locate.y), 33, Scalar(0, 0, 255), 2, 8, 0);
+            circle(templateA, Point(locate.x, locate.y), 33, Scalar(0, 0, 255), 10, 8, 0);
         }
     }
 

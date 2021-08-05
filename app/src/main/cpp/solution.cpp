@@ -16,12 +16,6 @@ void makeAdj(Ball &Red, Ball &Red2, Ball &Yellow, Ball &White){
     White.other1 = &Red; White.other2 = &Red2; White.other3 = &Yellow;
 }
 
-bool isMoveFinish(Ball &Red, Ball &Red2, Ball &Yellow, Ball &White){
-    if(White.speed.x != 0.0 || Red.speed.x != 0.0 || Red2.speed.x != 0.0 || Yellow.speed.x != 0.0) return false;
-    if(White.speed.y != 0.0 || Red.speed.y != 0.0 || Red2.speed.y != 0.0 || Yellow.speed.y != 0.0) return false;
-    return true;
-}
-
 vector<Point2d> findPath(Ball Red, Ball Red2, Ball Yellow, Ball White, int targetColor){
     vector<Point2d> ret;
     if(targetColor == 1){
@@ -139,8 +133,10 @@ bool isRedCollision(Point2d point, Ball &Red){
     return true;
 }
 
-void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref, int targetColor)
+void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center,
+                       vector<int> ball_color_ref, int targetColor, int btnIndex)
 {
+    int pathIndex = 0;
     Ball Red, Red2, Yellow, White;
     bool redFlag = false;
     for(int i=0; i<4; i++){
@@ -172,7 +168,9 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
             Ball redTemp = Ball(Point2d(Red.locate), Point2d(Red.speed), 2);
             Ball redTemp2 = Ball(Point2d(Red2.locate), Point2d(Red2.speed), 2);
             Ball yellowTemp = Ball(Point2d(Yellow.locate), Point2d(Yellow.speed), 1);
-            Ball whiteTemp = Ball(Point2d(White.locate), Point2d(dx, dy), 0);
+            Ball whiteTemp = Ball(Point2d(White.locate), Point2d(White.speed), 0);
+            if(targetColor == 1) yellowTemp.setSpeed(Point2d(dx, dy));
+            else if(targetColor == 2) whiteTemp.setSpeed(Point2d(dx,dy));
             makeAdj(redTemp, redTemp2, yellowTemp, whiteTemp);
 
             updateBall(redTemp, redTemp2, yellowTemp, whiteTemp, targetColor);
@@ -206,7 +204,10 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         }
 
         if(list.size() != 0){
-            for(Point2d point : list[0]){
+            if(btnIndex == 3){
+                pathIndex = (pathIndex + (list.size() / 5)) % list.size();
+            }
+            for(Point2d point : list[pathIndex]){
                 if(isRedCollision(point, Red)){ // 제 1적구
                     if(errorList[0].first != 0 || errorList[0].second != 0){
                         point.x -= errorList[0].first;
@@ -228,7 +229,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
                 }
                 Yellow.setLocate(Point2d(point.y, point.x));
                 Yellow.paint(bTemplate);
-                arrowedLine(bTemplate, Point2d(past.y, past.x), Point2d(point.y, point.x), Scalar(0, 255, 0), 6);
+                arrowedLine(bTemplate, Point2d(past.y, past.x), Point2d(point.y, point.x), Scalar(0, 255, 0), 15);
                 past = point;
             }
         }
@@ -252,7 +253,10 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
         }
 
         if(list.size() != 0){
-            for(Point2d point : list[0]){
+            if(btnIndex == 3){
+                pathIndex = (pathIndex + (list.size() / 5)) % list.size();
+            }
+            for(Point2d point : list[pathIndex]){
                 if(isRedCollision(point, Red)){ // 제 1적구
                     if(errorList[0].first != 0 || errorList[0].second != 0){
                         point.x -= errorList[0].first;
@@ -274,7 +278,7 @@ void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int>
                 }
                 White.setLocate(Point2d(point.y, point.x));
                 White.paint(bTemplate);
-                arrowedLine(bTemplate, Point2d(past.y, past.x), Point2d(point.y, point.x), Scalar(0, 255, 0), 6);
+                arrowedLine(bTemplate, Point2d(past.y, past.x), Point2d(point.y, point.x), Scalar(0, 255, 0), 10);
                 past = point;
             }
         }
