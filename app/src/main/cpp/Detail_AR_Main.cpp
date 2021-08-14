@@ -3,13 +3,12 @@
 #include "Geo_Proc.hpp"
 #include <android/log.h>
 
-void BilliardSollution(Mat &bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref,
-                       int targetColor, int btn_index);
+void BilliardSollution(Mat &bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref, int targetColor, int btn_index);
 
 void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int& c_situation){
     Mat img = input; // for android
     static Detection detect;
-    static Geo_Proc geo_proc(550);
+    static Geo_Proc geo_proc(700);
 
 
     if(img.cols>img.rows){
@@ -34,8 +33,6 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
         static bool find_ball_loc = false;
         static int situation = 1;
         static int e_cum=0;
-//        static Mat saveMat;
-//        static Mat showMat;
 
         // 상황1
        if(situation == 1){
@@ -49,9 +46,8 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
             if(Corners_num == 4 && Balls_num >= 4){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
                 can_find_pose = geo_proc.Find_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen, true);
 
-                geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
+                geo_proc.Draw_Obj_on_Template();   // draw circles under the balls and draw solution arrows on the table
                 Mat templete = geo_proc.GetTemplate();
-//                templete.copyTo(saveMat);
                 c_situation = 2;  // 4개의 공, 4개의 코너 모두 인식된 상황. "인식버튼을 눌러주세요"
 
                 if(btn_index == 1)
@@ -92,29 +88,30 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
             }
             // 색을 변경하거나, 경로를 변경
             if(btn_index == 2 || btn_index == 3) {
-//                saveMat.copyTo(showMat);
-                BilliardSollution(showMat, wor_ball_cen, ball_color_ref, target_color, btn_index);
+                Mat templete = geo_proc.GetTemplate();
+                BilliardSollution(templete, wor_ball_cen, ball_color_ref, target_color, btn_index);
+                geo_proc.SaveTemplate(templete);
             }
             // 취소버튼을 눌렀을 경우
             else if(btn_index == 4){
                 find_ball_loc=false;
-//                saveMat = nullptr;
-//                showMat = nullptr;
-                BilliardSollution(saveMat, wor_ball_cen, ball_color_ref, target_color, btn_index);
+                Mat templete = geo_proc.GetTemplate();
+                BilliardSollution(templete, wor_ball_cen, ball_color_ref, target_color, btn_index);
+                geo_proc.SaveTemplate(templete);
             }
 
         }
         // for debugging
 
-        if(can_find_pose == 0)
-            geo_proc.Draw_Object(img);
-
-        if(Balls_num != 0)
-            detect.Draw_Balls(img, balls_center, ball_color_ref);
-
-        if(Corners_num != 0){
-            detect.Draw_Corners(img, corners);
-        }
+//        if(can_find_pose == 0)
+//            geo_proc.Draw_Object(img);
+//
+//        if(Balls_num != 0)
+//            detect.Draw_Balls(img, balls_center, ball_color_ref);
+//
+//        if(Corners_num != 0){
+//            detect.Draw_Corners(img, corners);
+//        }
 
         detect.Clear_prev_frame_info();
 
