@@ -147,8 +147,8 @@ vector<Point2i>& wor_ball_cen, bool update)
 }
 
 
-void Geo_Proc::Draw_Obj_on_Templete(){
-    Ball_and_Sol_templete = Mat(B_H,B_W, CV_8UC3, Scalar(0,0,0));   // for drawing
+void Geo_Proc::Draw_Obj_on_Template(){
+    Ball_templete = Mat(B_H,B_W, CV_8UC3, Scalar(0,0,0));   // for drawing
                     
     for(int i=0; i<4 ; i++){
         Scalar color;
@@ -162,7 +162,7 @@ void Geo_Proc::Draw_Obj_on_Templete(){
         else
             continue;
                         
-        circle(Ball_and_Sol_templete, Point(wor_ball_loc[i].x, wor_ball_loc[i].y), ball_rad, color, 8, 8, 0);
+        circle(Ball_templete, Point(wor_ball_loc[i].x, wor_ball_loc[i].y), ball_rad, color, 8, 8, 0);
     }
                    
 }
@@ -253,11 +253,15 @@ bool Geo_Proc::Error_Comparison_with_Prev_Frame(Mat& in_rvec, Mat& in_tvec, doub
 
 }
 
-Mat& Geo_Proc::GetTemplete(void){
-    return Ball_and_Sol_templete;
+Mat Geo_Proc::GetTemplate(void){
+    return Ball_templete.clone();
 }
 
-void Geo_Proc::Draw_3D_Templete_on_Img(Mat& img){
+void Geo_Proc::SaveTemplate(Mat& templete){
+    Ball_and_Sol_templete = templete;
+}
+
+void Geo_Proc::Draw_3D_Template_on_Img(Mat& img){
 
     // *****당구공아래에 원 표시*****
     

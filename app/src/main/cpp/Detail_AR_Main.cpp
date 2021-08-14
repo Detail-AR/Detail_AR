@@ -50,16 +50,17 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
                 can_find_pose = geo_proc.Find_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen, true);
 
                 geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
-                Mat templete = geo_proc.GetTemplete();
+                Mat templete = geo_proc.GetTemplate();
 //                templete.copyTo(saveMat);
                 c_situation = 2;  // 4개의 공, 4개의 코너 모두 인식된 상황. "인식버튼을 눌러주세요"
 
                 if(btn_index == 1)
                 {
                     BilliardSollution(templete, wor_ball_cen, ball_color_ref, target_color, btn_index);
+                    geo_proc.SaveTemplate(templete);  // you must save the template.
 
                     if(can_find_pose != -1){
-                        geo_proc.Draw_3D_Templete_on_Img(img);
+                        geo_proc.Draw_3D_Template_on_Img(img);
                         find_ball_loc = true;
                     }
                 }
@@ -81,11 +82,11 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
                 can_find_pose = geo_proc.Find_Cam_Pos(corners, balls_center, ball_color_ref);
 
                 if(can_find_pose != -1){   // 포즈를 추정할 수 있다면 물체를 증강시킨다.
-                    geo_proc.Draw_3D_Templete_on_Img(img);
+                    geo_proc.Draw_3D_Template_on_Img(img);
                     e_cum=0;
                 }
                 else if(e_cum < 3){
-                    geo_proc.Draw_3D_Templete_on_Img(img);
+                    geo_proc.Draw_3D_Template_on_Img(img);
                     e_cum++;
                 }
             }
