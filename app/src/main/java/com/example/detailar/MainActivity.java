@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
     private int btnIndex = 0;
     private int delayTime = 0;
 
-    public native int FindBiliards(long matAddrInput, long matAddrResult, int index, int color); // native-lib에서 구
+    public native int FindBiliards(long matAddrInput, long matAddrResult, int btnIndex, int color); // native-lib에서 구
 
     static {
         System.loadLibrary("opencv_java4");
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
                 btnIndex = 1;
 
                 // Toast Message
-                Toast.makeText(MainActivity.this, "인식이 완료 되었습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "인식을 시작합니다.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -183,10 +183,6 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
         String TAG = new StringBuilder(_TAG).append("onCameraViewStoped").toString();
 
         Log.i(TAG, "OpenCV CameraView Stoped");
-    }
-
-    void showToastMessage(String text){
-        Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT);
     }
 
     @Override
