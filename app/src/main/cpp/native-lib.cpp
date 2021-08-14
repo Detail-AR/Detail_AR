@@ -9,7 +9,6 @@
 #include "Geo_Proc.cpp"
 #include "Find_Cam_Pos.cpp"
 #include "solution.cpp"
-#include <android/log.h>
 
 using namespace cv;
 
@@ -35,25 +34,4 @@ JNIEXPORT int JNICALL
         return 2; // 2이면 인식버튼을 눌르라는 메세지 출력
     }
     return -1; // 기본값(출력X
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-    Java_com_example_detailar_MainActivity_isDetective(JNIEnv *env,
-                                                                            jobject thiz,
-                                                                            jlong mat_addr_input,
-                                                                            jlong mat_addr_result,
-                                                                            jint index,
-                                                                            jint color) {
-    // TODO: implement ConvertRGBtoGray()
-    Mat &matInput = *(Mat *)mat_addr_input;
-    Mat &matResult = *(Mat *)mat_addr_result;
-//    int result = asd(matInput, matResult);
-//    // 1
-//    인식라하세욧
-//    // 2
-//    모서리를 보여주세
-//    // 3
-//    솔루션을 출력하라고 보여주
-//    return result;
 }
