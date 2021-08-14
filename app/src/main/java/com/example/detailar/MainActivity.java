@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements PortraitCameraVie
         String TAG2 = new StringBuilder(_TAG).append("onCreate").toString();
         int nowSituation = FindBiliards(resizeImage.getNativeObjAddr(), resizeImage.getNativeObjAddr(), btnIndex, targetColor);
         Log.i(TAG2, "nowSituation : " + nowSituation);
+        if (btnIndex == 3) btnIndex = 0;
         if(nowSituation == 1) {
             // 코너인식 Toast
             if(delayTime % 60 != 0) return matInput;
