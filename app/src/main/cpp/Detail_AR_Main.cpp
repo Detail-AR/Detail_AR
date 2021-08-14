@@ -3,14 +3,13 @@
 #include "Geo_Proc.hpp"
 #include <android/log.h>
 
-void BilliardSollution(Mat& bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref, int targetColor, int btnIndex);
+void BilliardSollution(Mat &bTemplate, vector<Point2i> balls_center, vector<int> ball_color_ref,
+                       int targetColor, int btn_index);
 
 void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int& c_situation){
-
-
     Mat img = input; // for android
     static Detection detect;
-    static Geo_Proc geo_proc(700);
+    static Geo_Proc geo_proc(550);
 
 
     if(img.cols>img.rows){
@@ -22,11 +21,11 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
 
     detect.Set_Image(img, false);    //  android 에서는 false로 설정한다.
 
-        // 루프 시작 지점 
+        // 루프 시작 지점
 
 
-        vector<Point2i> corners;   
-        vector<Point2i> balls_center;  
+        vector<Point2i> corners;
+        vector<Point2i> balls_center;
         vector<int> ball_color_ref;
         vector<Point2i> wor_ball_cen;
         int Corners_num;
@@ -35,8 +34,9 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
         static bool find_ball_loc = false;
         static int situation = 1;
         static int e_cum=0;
+//        static Mat saveMat;
+//        static Mat showMat;
 
-        
         // 상황1
        if(situation == 1){
 
@@ -48,13 +48,13 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
             // 제일 처음 모든 공의 위치를 파악하기 위함.
             if(Corners_num == 4 && Balls_num >= 4){  // 4개의 코너, 4개의 공 모두가 감지 되어야함.
                 can_find_pose = geo_proc.Find_Balls_3D_Loc(corners, balls_center, ball_color_ref, wor_ball_cen, true);
-                           
+
                 geo_proc.Draw_Obj_on_Templete();   // draw circles under the balls and draw solution arrows on the table
                 Mat templete = geo_proc.GetTemplete();
-                
+//                templete.copyTo(saveMat);
                 c_situation = 2;  // 4개의 공, 4개의 코너 모두 인식된 상황. "인식버튼을 눌러주세요"
 
-                if(btn_index == 1 || btn_index == 3)
+                if(btn_index == 1)
                 {
                     BilliardSollution(templete, wor_ball_cen, ball_color_ref, target_color, btn_index);
 
@@ -67,7 +67,7 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
 
         }
 
-                      
+
         // 상황2
         //if find_ball_loc is true.
 
@@ -89,10 +89,19 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
                     e_cum++;
                 }
             }
-            
-            
-            if(btn_index == 4)
+            // 색을 변경하거나, 경로를 변경
+            if(btn_index == 2 || btn_index == 3) {
+//                saveMat.copyTo(showMat);
+                BilliardSollution(showMat, wor_ball_cen, ball_color_ref, target_color, btn_index);
+            }
+            // 취소버튼을 눌렀을 경우
+            else if(btn_index == 4){
                 find_ball_loc=false;
+//                saveMat = nullptr;
+//                showMat = nullptr;
+                BilliardSollution(saveMat, wor_ball_cen, ball_color_ref, target_color, btn_index);
+            }
+
         }
         // for debugging
 
@@ -107,11 +116,6 @@ void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, in
         }
 
         detect.Clear_prev_frame_info();
-        __android_log_print(
-            ANDROID_LOG_INFO,
-            "SITUATION",
-            " No.1 ! : %d %d\n",
-            situation, btn_index);
 
         if(find_ball_loc)
             situation = 2;
