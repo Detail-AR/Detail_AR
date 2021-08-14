@@ -20,7 +20,6 @@ vector<Point2d> findPath(Ball Red, Ball Red2, Ball Yellow, Ball White, int targe
     vector<Point2d> ret;
     if(targetColor == 1){
         while(Yellow.speed.x != 0.0){
-//        White.move();
             if(Yellow.isCollisionMove() != -1){
                 ret.push_back(Yellow.locate);
             }
@@ -35,7 +34,6 @@ vector<Point2d> findPath(Ball Red, Ball Red2, Ball Yellow, Ball White, int targe
 
     }else if(targetColor == 2){
         while(White.speed.x != 0.0){
-//        White.move();
             if(White.isCollisionMove() != -1){
                 ret.push_back(White.locate);
             }
@@ -117,8 +115,8 @@ bool isRedCollision(Point2d point, Ball &Red){
 vector<Point2d> getSpeedList(Ball &Red, Ball &Red2, Ball &Yellow, Ball &White, int targetColor){
     vector<Point2d> ret;
 
-    for(double dx=-80; dx<=80; dx+=0.5){
-        for(double dy=-80; dy<=80; dy+=0.5){
+    for(double dx=-80; dx<=80; dx+=2){
+        for(double dy=-80; dy<=80; dy+=2){
             // 1사분면 ~ 4사분면 Screen 좌표계 (화이트가 0,0 가정)
             Ball redTemp = Ball(Point2d(Red.locate), Point2d(Red.speed), 2);
             Ball redTemp2 = Ball(Point2d(Red2.locate), Point2d(Red2.speed), 2);
@@ -154,7 +152,7 @@ vector<vector<Point2d>> getValidCollisionList(Ball &Red, Ball &Red2, Ball &Yello
         }
         auto paths = findPath(Red, Red2, Yellow, White, targetColor);
         if(paths[0].x == -1 && paths[0].y == -1) continue;
-        if(paths.size() == 3){
+        if(paths.size() == 3 || paths.size() == 2){
             validSpeedList.push_back(speeds);
         }
     }
@@ -252,16 +250,19 @@ void BilliardSollution(Mat &bTemplate, vector<Point2i> balls_center, vector<int>
                                                  tempYellowSpeedList, yellow_past_loc, 1);
         white_path_list = getValidCollisionList(Red, Red2, Yellow, White,
                                                 tempWhiteSpeedList, white_past_loc, 2);
+
+        if (target_color == 1) showPaths(Red, Red2, Yellow, White, bTemplate, yellow_path_list, yellow_past_loc, yellow_path_index, target_color, error_list);
+        else if (target_color == 2) showPaths(Red, Red2, Yellow, White, bTemplate, white_path_list, white_past_loc, white_path_index, target_color, error_list);
     }
     // 색깔 변경 및 경로 변경
     else if ( btn_index == 2 || btn_index == 3 ) {
-        if(target_color == 1) {
-            if(btn_index == 3){
+        if (target_color == 1) {
+            if (btn_index == 3){
                 yellow_path_index = (yellow_path_index + (yellow_path_list.size() / 5)) % yellow_path_list.size();
             }
             showPaths(Red, Red2, Yellow, White, bTemplate, yellow_path_list, yellow_past_loc, yellow_path_index, target_color, error_list);
         }
-        else if(target_color == 2) {
+        else if (target_color == 2) {
             if(btn_index == 3){
                 white_path_index = (white_path_index + (white_path_list.size() / 5)) % white_path_list.size();
             }
@@ -272,8 +273,8 @@ void BilliardSollution(Mat &bTemplate, vector<Point2i> balls_center, vector<int>
     else {
         white_path_index = 0;
         yellow_path_index = 0;
-        for(auto list : white_path_list) list.clear();
-        for(auto list : yellow_path_list) list.clear();
+        for (auto list : white_path_list) list.clear();
+        for (auto list : yellow_path_list) list.clear();
         error_list.clear();
         white_past_loc = Point2d(0, 0);
         yellow_past_loc = Point2d(0, 0);
