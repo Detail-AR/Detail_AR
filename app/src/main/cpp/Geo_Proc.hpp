@@ -6,6 +6,7 @@
 class Geo_Proc
 {
     private:
+    Mat Ball_templete;
     Mat Ball_and_Sol_templete;
     vector<Point3d> world_table_outside_corners;
     vector<Point3f> world_table_inside_corners_f;
@@ -62,9 +63,10 @@ class Geo_Proc
     void Distance_from_Prev_Frame(Mat& rvec_, Mat& tvec_, double& distance);
     int Distance_from_Error_Frame(Mat& rvec_, Mat& tvec_);
         
-    Mat& GetTemplete(void);
-    void Draw_Obj_on_Templete();
-    void Draw_3D_Templete_on_Img(Mat& img);
+    Mat GetTemplate(void);
+    void SaveTemplate(Mat& templete);
+    void Draw_Obj_on_Template();
+    void Draw_3D_Template_on_Img(Mat& img);
 
     // for test
     void Draw_Object(Mat& img);
