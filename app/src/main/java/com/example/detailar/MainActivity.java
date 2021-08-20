@@ -32,7 +32,6 @@ import static android.Manifest.permission.CAMERA;
 
 public class MainActivity extends AppCompatActivity implements PortraitCameraView.CvCameraViewListener2 {
 
-
     private final String _TAG = "MainActivity:";
 
     private Mat matInput;

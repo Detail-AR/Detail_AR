@@ -8,7 +8,7 @@ void BilliardSollution(Mat &bTemplate, vector<Point2i> balls_center, vector<int>
 void Detail_AR_Main(Mat& input, Mat& output, int btn_index, int target_color, int& c_situation){
     Mat img = input; // for android
     static Detection detect;
-    static Geo_Proc geo_proc(700);
+    static Geo_Proc geo_proc(550);
 
 
     if(img.cols>img.rows){
