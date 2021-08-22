@@ -11,7 +11,9 @@
 ### OverView
 
 This is an argumented reality Android app that helps 4-ball pool game beginner.
+
 This app can detect the position of billiard balls and table and then show you billiard solution path with argumented objects such as arrows, circles.
+
 Solutions show how target ball hits two red balls with hitting the wall or directly. 
 
 You can use the app easily by following the steps below.
