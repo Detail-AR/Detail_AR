@@ -1,27 +1,16 @@
-## Detail_AR
+# Detail_AR
 
 <p align="center">
-    <img src="assets/logo.png" alt="Logo" width="80" height="80">
+    <img src="Assets/Logo.png" alt="Logo" width="80" height="80">
 </p>
 
-  <h2 align="center">Detail_AR Project</h2>
-
-  <p align="center">
-    <p align="center">
-      Hi, everybody ! This app finds billiard solution path for beginners that works on Android.
-		</p>
-		<p align="center">
-      Solutions show path that target ball hits two red balls with hitting the wall or directly. 
-		</p>
-</p>
-
-
+<h3 align="center">Detail_AR Project</h3>
 
 ------
 
-## OverView
+### OverView
 
-This app finds billiard solution path for beginners that works on Android. Solutions show path that target ball hits two red balls with hitting the wall or directly. 
+This app finds billiard solution path for beginners that works on Android. Solutions show paths that target ball hits two red balls with hitting the wall or directly. 
 
 You can use the app easily by following the steps below.
 
