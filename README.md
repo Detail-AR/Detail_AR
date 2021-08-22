@@ -1,7 +1,7 @@
 ## Detail_AR
 
 <p align="center">
-    <img src="assets/logo.png" alt="Logo" width="80" height="80">
+    <img src="Assets/Logo.png" alt="Logo" width="80" height="80">
 </p>
 
   <h2 align="center">Detail_AR Project</h2>
