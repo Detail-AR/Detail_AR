@@ -18,9 +18,9 @@ Solutions show how target ball hits two red balls with hitting the wall or direc
 
 You can use the app easily by following the steps below.
 
-- Just show the 4-corners of Billiard Table into APK camera frame.
+- Just show the 4-edges of Billiard Table into APK camera frame.
 - When Detection is completed, Click the button `인식`.
-  - After 4-conrners detection is completed, you can free to walk around the billiard table.
+  - After 4-edges detection is completed, you can free to walk around the billiard table.
 - You can see the path of billiard solution with argumented object.
 - If you want to change the target ball color you want to hit, Click the button  `색 변경`.
 - If you want to see other path, Click the button  `경로 변경`.
